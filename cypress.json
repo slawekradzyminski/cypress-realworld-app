@@ -5,5 +5,10 @@
   "viewportWidth": 1280,
   "env": {
     "apiUrl": "http://localhost:3001"
-  }
+  },
+  "experimentalComponentTesting": true,
+  "componentFolder": "src",
+  "pluginsFile": "node_modules/cypress-react-unit-test/plugins/cra-v3",
+  "supportFile": "node_modules/cypress-react-unit-test/support",
+  "testFiles": "**/*.spec.js"
 }

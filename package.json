@@ -77,7 +77,8 @@
   },
   "devDependencies": {
     "cypress": "4.3.0",
-    "eslint-config-prettier": "6.10.1",
+    "cypress-react-unit-test": "3.0.0-cypress-mount-mode.13",
+    "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-cypress": "2.10.3",
     "eslint-plugin-prettier": "3.1.2",
     "prettier": "2.0.4",
