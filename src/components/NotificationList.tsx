@@ -30,6 +30,7 @@ const NotificationsList: React.FC<NotificationsListProps> = ({
       ) : (
         <EmptyList entity="Notifications">
           <RemindersIllustration
+            data-test="zero-notifications-image"
             style={{ height: 200, width: 250, marginBottom: 30 }}
           />
         </EmptyList>
