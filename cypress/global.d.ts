@@ -107,6 +107,26 @@ declare namespace Cypress {
     logoutByXstate(): Chainable<void>;
 
     /**
+     * Auth0 Allow App to be authenticated
+     */
+    auth0AllowApp(): Chainable<void>;
+
+    /**
+     * Enter User Credentials into Auth0 UI
+     */
+    auth0EnterUserCredentials(username: string, password?: string): Chainable<any>;
+
+    /**
+     * Logs out of Auth0 UI
+     */
+    logoutByAuth0(): Chainable<void>;
+
+    /**
+     * Logs in via UI to Auth0
+     */
+    loginByAuth0(username: string, password?: string): Chainable<any>;
+
+    /**
      * Switch current user by logging out current user and logging as user with specified username
      */
     switchUser(username: string): Chainable<any>;
