@@ -287,3 +287,68 @@ Cypress.Commands.add("database", (operation, entity, query, logTask = false) => 
     return data;
   });
 });
+
+Cypress.Commands.add("auth0AllowApp", () => {
+  cy.get("body").then(($body) => {
+    // If OAuth consent screen, allow
+    if ($body.find("#allow").length > 0) {
+      cy.get("#allow").click();
+    }
+  });
+});
+
+Cypress.Commands.add("auth0EnterUserCredentials", (username, password) => {
+  cy.get("body").then(($body) => {
+    if ($body.find(".auth0-lock-last-login-pane").length > 0) {
+      // Use the saved credentials to re-authenticate
+      cy.get('.auth0-lock-last-login-pane a[type="button"]').click();
+    } else {
+      // Fill in login form
+      cy.get('[name="email"].auth0-lock-input').clear().type(username);
+      cy.get('[name="password"].auth0-lock-input').clear().type(password, { log: false });
+      cy.get(".auth0-lock-submit").click();
+    }
+  });
+  cy.auth0AllowApp();
+});
+
+// Preserve Auth0 authenticated Cookie
+Cypress.Cookies.defaults({
+  whitelist: "auth0.is.authenticated",
+});
+
+const isAuth0LoginPage = (location: any) =>
+  location.href.includes(`https://${Cypress.env("auth0_domain")}/login`);
+
+Cypress.Commands.add("loginByAuth0", (username, password) => {
+  /*
+  Useful when rate limited by Auth0
+  cy.exec("curl -4 icanhazip.com")
+    .its("stdout")
+    .then((ip) => {
+      cy.request({
+        method: "DELETE",
+        url: `https://${Cypress.env("auth0_domain")}/api/v2/anomaly/blocks/ips/${ip}`,
+        auth: {
+          bearer: Cypress.env("auth0_mgmt_api_token"),
+        },
+      });
+    });
+  */
+
+  cy.visit("/");
+
+  cy.getCookie("auth0.is.authenticated").then((cookie) => {
+    if (cookie) {
+      Cypress.log({ name: "auth0 cookie", message: "User is logged in" });
+    } else {
+      cy.location()
+        .should("satisfy", isAuth0LoginPage)
+        .then((location) => {
+          Cypress.log({ name: "auth0", message: "Perform Login" });
+          cy.auth0AllowApp();
+          cy.auth0EnterUserCredentials(username, password);
+        });
+    }
+  });
+});
