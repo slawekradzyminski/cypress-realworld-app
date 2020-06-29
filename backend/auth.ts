@@ -60,14 +60,8 @@ passport.deserializeUser(function (id: string, done) {
 });
 
 // authentication routes
-
-router.get("/loginAuthZero", function (req, res) {
-  console.log("in auth0 route");
-  res.send({ hello: "world" });
-});
-
 router.get(
-  "/loginAuth02",
+  "/loginAuth0",
   passport.authenticate("auth0", {
     scope: "openid email profile",
   }),
