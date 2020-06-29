@@ -1,10 +1,20 @@
 import { Express } from "express";
-import proxy from "http-proxy-middleware";
+import createProxyMiddleware from "http-proxy-middleware";
 
 export default function (app: Express) {
   app.use(
-    proxy(["/loginAuthZero", "/login", "/callback", "/logout"], {
-      target: `http://localhost:3001`,
+    "/loginAuthZero",
+    createProxyMiddleware({
+      target: "http://localhost:3001",
+      changeOrigin: true,
+      logLevel: "debug",
     })
   );
+  /*app.use(
+    createProxyMiddleware(["/loginAuthZero", "/login", "/callback", "/logout"], {
+      target: `http://localhost:3001`,
+      changeOrigin: true,
+      logLevel: "debug",
+    })
+  );*/
 }
