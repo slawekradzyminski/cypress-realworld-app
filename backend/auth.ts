@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import passport from "passport";
 import express, { Request, Response } from "express";
 import { User } from "../src/models/user";
-import { getUserBy, getUserById } from "./database";
+import { getUserBy, getUserById, createUser } from "./database";
 
 dotenv.config({ path: ".env" });
 dotenv.config({ path: ".env.dev" });
@@ -18,14 +18,28 @@ passport.use(
       domain: process.env.AUTH0_DOMAIN,
       clientID: process.env.AUTH0_CLIENTID,
       clientSecret: process.env.AUTH0_CLIENTSECRET,
-      callbackURL: "/callback",
+      callbackURL: "http://localhost:3000/callback",
     },
     // @ts-ignore
     function (accessToken, refreshToken, extraParams, profile, done) {
       // accessToken is the token to call Auth0 API (not needed in the most cases)
       // extraParams.id_token has the JSON Web Token
       // profile has all the information from the user
-      console.log("in auth0 strategy");
+      console.log("in auth0 strategy", profile);
+
+      if (profile) {
+        const user = getUserById(profile.id);
+        if (!user) {
+          createUser({
+            id: profile.id,
+            username: profile.nickname,
+            firstName: profile.displayName,
+            email: profile.emails[0].value,
+            avatar: profile.picture,
+          });
+        }
+      }
+
       return done(null, profile);
     }
   )
@@ -70,27 +84,16 @@ router.get(
   }
 );
 
-// Perform the final stage of authentication and redirect to previously requested URL or '/user'
-router.get("/callback", function (req, res, next) {
-  passport.authenticate("auth0", function (err, user, info) {
-    if (err) {
-      return next(err);
+router.get(
+  "/callback",
+  passport.authenticate("auth0", { failureRedirect: "/loginAuth0" }),
+  function (req, res) {
+    if (!req.user) {
+      throw new Error("user null");
     }
-    if (!user) {
-      return res.redirect("/login");
-    }
-    req.logIn(user, function (err) {
-      if (err) {
-        return next(err);
-      }
-      // @ts-ignore
-      const returnTo = req.session.returnTo;
-      // @ts-ignore
-      delete req.session.returnTo;
-      res.redirect(returnTo || "/");
-    });
-  })(req, res, next);
-});
+    res.redirect("/");
+  }
+);
 
 router.post("/login", passport.authenticate("local"), (req: Request, res: Response): void => {
   if (req.body.remember) {
