@@ -61,7 +61,7 @@ const App: React.FC = () => {
           <Route exact path="/signin">
             <SignInForm authService={authService} />
           </Route>
-          <Route path="/*">
+          <Route path="^(?!.*(/|/loginAuthZero)).*$">
             <Redirect
               to={{
                 pathname: "/signin",

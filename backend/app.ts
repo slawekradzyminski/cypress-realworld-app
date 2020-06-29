@@ -52,6 +52,7 @@ app.use(passport.session());
 app.use(paginate.middleware(+process.env.PAGINATION_PAGE_SIZE!));
 
 app.use(auth);
+console.log("after auth routes");
 app.use("/users", userRoutes);
 app.use("/contacts", contactRoutes);
 app.use("/bankAccounts", bankAccountRoutes);
@@ -65,6 +66,8 @@ app.use("/bankTransfers", bankTransferRoutes);
 if (process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development") {
   app.use("/testData", testDataRoutes);
 }
+
+console.log("before static route");
 
 app.use(express.static(path.join(__dirname, "../public")));
 
