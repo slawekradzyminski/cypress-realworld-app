@@ -31,7 +31,7 @@ export interface AuthMachineContext {
 export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMachineEvents>(
   {
     id: "authentication",
-    initial: "unauthorized",
+    initial: "refreshing",
     context: {
       user: undefined,
       message: undefined,
