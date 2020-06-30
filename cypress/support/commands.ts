@@ -1,8 +1,14 @@
 // @ts-check
 ///<reference path="../global.d.ts" />
 
+import { WebAuth } from "auth0-js";
 import { pick } from "lodash/fp";
 import { format as formatDate } from "date-fns";
+
+const auth = new WebAuth({
+  domain: Cypress.env("auth0_domain"),
+  clientID: Cypress.env("auth0_clientID"),
+});
 
 Cypress.Commands.add("getBySel", (selector, ...args) => {
   return cy.get(`[data-test=${selector}]`, ...args);
@@ -286,4 +292,53 @@ Cypress.Commands.add("database", (operation, entity, query, logTask = false) => 
     log.end();
     return data;
   });
+});
+
+// @ts-ignore
+Cypress.Commands.add("loginByAuth0", (username, password) => {
+  Cypress.log({
+    name: "loginByAuth0",
+    displayName: "LOGIN BY AUTH0",
+    message: [`🔒 Login as ${username}`],
+  });
+
+  auth.client.login(
+    {
+      realm: "Username-Password-Authentication",
+      username,
+      password,
+      scope: Cypress.env("auth0_scope"),
+      audience: Cypress.env("auth0_audience"),
+      // @ts-ignore
+      client_secret: Cypress.env("auth0_clientSecret"),
+    },
+    (err, response) => {
+      if (err) {
+        console.log(err);
+      } else {
+        const { accessToken, expiresIn, idToken, scope } = response;
+        console.log("RESP", response);
+
+        //"auth0StateCookieName": "a0:state",
+        cy.setCookie("a0:state", "testing-state");
+
+        auth.client.userInfo(accessToken, (err, user) => {
+          if (err) {
+            console.log(err);
+          }
+          const persistedSession = {
+            user,
+            idToken,
+            accessToken,
+            accessTokenScope: scope,
+            accessTokenExpiresAt: Date.now() + expiresIn,
+            createdAt: Date.now(),
+          };
+
+          //"auth0SessionCookieName": "a0:session",
+          cy.setCookie("a0:session", persistedSession.toString());
+        });
+      }
+    }
+  );
 });
