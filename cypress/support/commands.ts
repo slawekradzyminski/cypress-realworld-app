@@ -302,43 +302,57 @@ Cypress.Commands.add("loginByAuth0", (username, password) => {
     message: [`🔒 Login as ${username}`],
   });
 
-  auth.client.login(
-    {
-      realm: "Username-Password-Authentication",
-      username,
-      password,
-      scope: Cypress.env("auth0_scope"),
-      audience: Cypress.env("auth0_audience"),
-      // @ts-ignore
-      client_secret: Cypress.env("auth0_clientSecret"),
-    },
-    (err, response) => {
-      if (err) {
-        console.log(err);
-      } else {
-        const { accessToken, expiresIn, idToken, scope } = response;
-        console.log("RESP", response);
-
-        //"auth0StateCookieName": "a0:state",
-        cy.setCookie("a0:state", "testing-state");
-
-        auth.client.userInfo(accessToken, (err, user) => {
+  cy.wrap(
+    new Cypress.Promise((resolve, reject) => {
+      auth.client.login(
+        {
+          realm: "Username-Password-Authentication",
+          username,
+          password,
+          scope: Cypress.env("auth0_scope"),
+          audience: Cypress.env("auth0_audience"),
+          // @ts-ignore
+          client_secret: Cypress.env("auth0_clientSecret"),
+        },
+        (err, response) => {
           if (err) {
-            console.log(err);
+            return reject(new Error(err.description));
           }
-          const persistedSession = {
-            user,
-            idToken,
-            accessToken,
-            accessTokenScope: scope,
-            accessTokenExpiresAt: Date.now() + expiresIn,
-            createdAt: Date.now(),
-          };
 
-          //"auth0SessionCookieName": "a0:session",
-          cy.setCookie("a0:session", persistedSession.toString());
-        });
-      }
-    }
-  );
+          resolve(response);
+        }
+      );
+    })
+  ).then((response) => {
+    console.log("RESP", response);
+    // @ts-ignore
+    const { accessToken, expiresIn, idToken, scope } = response;
+
+    //"auth0StateCookieName": "a0:state",
+
+    cy.setCookie("a0:state", "testing-state");
+
+    return new Cypress.Promise((resolve, reject) => {
+      auth.client.userInfo(accessToken, (err, user) => {
+        if (err) {
+          console.log(err);
+          return reject(err);
+        }
+
+        const persistedSession = {
+          user,
+          idToken,
+          accessToken,
+          accessTokenScope: scope,
+          accessTokenExpiresAt: Date.now() + expiresIn,
+          createdAt: Date.now(),
+        };
+        console.log("persistedSession", persistedSession);
+        resolve(persistedSession);
+      });
+    }).then((persistedSession: any) => {
+      //"auth0SessionCookieName": "a0:session",
+      cy.setCookie("a0:session", persistedSession.toString());
+    });
+  });
 });
