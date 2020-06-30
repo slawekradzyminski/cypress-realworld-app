@@ -42,7 +42,7 @@ app.use(
   session({
     secret: "session secret",
     resave: false,
-    saveUninitialized: false,
+    //saveUninitialized: false,
     unset: "destroy",
   })
 );
