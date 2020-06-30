@@ -65,11 +65,13 @@ passport.use(
 );
 
 passport.serializeUser(function (user: User, done) {
+  console.log("serialize user: ", user);
   done(null, user.id);
 });
 
 passport.deserializeUser(function (id: string, done) {
   const user = getUserById(id);
+  console.log("deserialize user: ", user);
   done(null, user);
 });
 

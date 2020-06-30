@@ -15,6 +15,10 @@ router.post("/seed", (req, res) => {
   res.sendStatus(200);
 });
 
+router.get("/getSessionId", (req, res) => {
+  res.status(200).json({ sessionId: req.session?.id });
+});
+
 //GET /testData/:entity
 router.get("/:entity", validateMiddleware([...isValidEntityValidator]), (req, res) => {
   const { entity } = req.params;

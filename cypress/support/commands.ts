@@ -377,7 +377,10 @@ Cypress.Commands.add("loginByAuth0", (username, password) => {
         domain: Cypress.env("auth0_domain"),
       });
 
-      cy.request(`/checkAuth`, { log: true });
+      cy.request(`http://localhost:3001/testData/getSessionId`).then((data) => {
+        console.log("data", data);
+        cy.setCookie("connect.sid", data.body.sessionId);
+      });
     });
   });
 });
