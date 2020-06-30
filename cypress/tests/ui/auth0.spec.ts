@@ -11,6 +11,9 @@ describe("Auth0", function () {
   });
 
   it("should allow a visitor to login, onboard and logout", function () {
+    //cy.visit("/");
+
+    //cy.getCookie("connect.sid");
     cy.loginByAuth0(Cypress.env("auth0_username"), Cypress.env("auth0_password"));
     cy.visit("/");
 
@@ -20,6 +23,7 @@ describe("Auth0", function () {
     cy.getBySel("user-onboarding-dialog").should("be.visible");
     cy.getBySel("user-onboarding-next").click();
 
+    /*
     cy.getBySel("user-onboarding-dialog-title").should("contain", "Create Bank Account");
 
     cy.getBySelLike("bankName-input").type("The Best Bank");
@@ -41,5 +45,6 @@ describe("Auth0", function () {
     }
     cy.getBySel("sidenav-signout").click();
     cy.location("pathname").should("eq", "/signin");
+  */
   });
 });

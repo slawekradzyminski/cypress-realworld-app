@@ -356,17 +356,26 @@ Cypress.Commands.add("loginByAuth0", (username, password) => {
     }).then((persistedSession: any) => {
       // App Session Cookie
       //Cookie: connect.sid=s%3A5lsIGaOUGofK0X98BHVXM6hqN8IF3tz4.CfCpQyNLTPe%2BoV%2BvuWYFgZUOoUYUUqf%2FBYA1Db8iX30
-
       // Attempt to mock express-session cookie (connect.sid)
       const sessionID = uid(24);
       const secret = "session secret";
       const signed = "s:" + signature.sign(sessionID, secret);
-      const cookieName = "connect.sid";
-      const data = cookie.serialize(cookieName, signed);
+      //const = cookie.serialize(cookieName, signed);
 
-      console.log("set-cookie %s", data);
+      //console.log("set-cookie %s", data);
 
-      cy.setCookie(cookieName, data.split("=")[1], { httpOnly: true });
+      cy.setCookie("auth0", signed, {
+        log: true,
+        httpOnly: true,
+        secure: true,
+        domain: Cypress.env("auth0_domain"),
+      });
+      cy.setCookie("auth0_compat", signed, {
+        log: true,
+        httpOnly: true,
+        secure: true,
+        domain: Cypress.env("auth0_domain"),
+      });
     });
   });
 });
