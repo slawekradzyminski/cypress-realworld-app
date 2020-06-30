@@ -1,6 +1,9 @@
 // @ts-check
 ///<reference path="../global.d.ts" />
 
+import { sync as uid } from "uid-safe";
+import cookie from "cookie";
+import signature from "cookie-signature";
 import { WebAuth } from "auth0-js";
 import { pick } from "lodash/fp";
 import { format as formatDate } from "date-fns";
@@ -351,8 +354,19 @@ Cypress.Commands.add("loginByAuth0", (username, password) => {
         resolve(persistedSession);
       });
     }).then((persistedSession: any) => {
-      //"auth0SessionCookieName": "a0:session",
-      cy.setCookie("a0:session", persistedSession.toString());
+      // App Session Cookie
+      //Cookie: connect.sid=s%3A5lsIGaOUGofK0X98BHVXM6hqN8IF3tz4.CfCpQyNLTPe%2BoV%2BvuWYFgZUOoUYUUqf%2FBYA1Db8iX30
+
+      // Attempt to mock express-session cookie (connect.sid)
+      const sessionID = uid(24);
+      const secret = "session secret";
+      const signed = "s:" + signature.sign(sessionID, secret);
+      const cookieName = "connect.sid";
+      const data = cookie.serialize(cookieName, signed);
+
+      console.log("set-cookie %s", data);
+
+      cy.setCookie(cookieName, data.split("=")[1], { httpOnly: true });
     });
   });
 });
