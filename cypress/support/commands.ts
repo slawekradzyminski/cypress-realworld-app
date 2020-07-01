@@ -377,6 +377,11 @@ Cypress.Commands.add("loginByAuth0", (username, password) => {
         domain: Cypress.env("auth0_domain"),
       });
 
+      // Send user to backend to be set on session
+      cy.request("POST", "http://localhost:3001/testData/setUserOnSession", {
+        profile: persistedSession.user,
+      });
+
       cy.request(`http://localhost:3001/testData/getSessionId`).then((data) => {
         console.log("data", data);
         cy.setCookie("connect.sid", data.body.sessionId);
