@@ -1,6 +1,5 @@
 ///<reference path="types.ts" />
 
-import debug from "debug";
 import express from "express";
 import { getAllForEntity, seedDatabase, getUserById, createUser } from "./database";
 import { validateMiddleware } from "./helpers";
@@ -18,9 +17,10 @@ router.post("/seed", (req, res) => {
 
 router.post("/setUserOnSession", (req, res) => {
   const { profile } = req.body;
-  const dbUser = getUserById(profile.id);
+  let dbUser = getUserById(profile.id);
+
   if (!dbUser) {
-    createUser({
+    dbUser = createUser({
       id: profile.sub,
       username: profile.nickname,
       firstName: profile.displayName,
@@ -29,19 +29,13 @@ router.post("/setUserOnSession", (req, res) => {
     });
   }
 
-  // @ts-ignore
-  req.session.passport = {};
-  req.session!.passport.user = profile.sub;
-
-  req.session?.save(() => {
-    //  debug("sessions saved %o", req.session);
-    //  debug("is authenticated %s", req.isAuthenticated());
+  req.logIn(dbUser, (err) => {
+    if (err) {
+      res.sendStatus(400);
+    } else {
+      res.sendStatus(200);
+    }
   });
-  res.send(200);
-});
-
-router.get("/getSessionId", (req, res) => {
-  res.status(200).json({ sessionId: req.session?.id });
 });
 
 //GET /testData/:entity

@@ -326,66 +326,30 @@ Cypress.Commands.add("loginByAuth0", (username, password) => {
         }
       );
     })
-  ).then((response) => {
-    console.log("RESP", response);
-    // @ts-ignore
-    const { accessToken, expiresIn, idToken, scope } = response;
-
-    //"auth0StateCookieName": "a0:state",
-
-    cy.setCookie("a0:state", "testing-state");
-
+  ).then((response: any) => {
     return new Cypress.Promise((resolve, reject) => {
-      auth.client.userInfo(accessToken, (err, user) => {
+      auth.client.userInfo(response.accessToken, (err, user) => {
         if (err) {
-          console.log(err);
           return reject(err);
         }
 
-        const persistedSession = {
-          user,
-          idToken,
-          accessToken,
-          accessTokenScope: scope,
-          accessTokenExpiresAt: Date.now() + expiresIn,
-          createdAt: Date.now(),
-        };
-        console.log("persistedSession", persistedSession);
-        resolve(persistedSession);
+        resolve(user);
       });
-    }).then((persistedSession: any) => {
-      //cy.visit(`/callback?code=${persistedSession.accessToken}`);
-      // App Session Cookie
-      //Cookie: connect.sid=s%3A5lsIGaOUGofK0X98BHVXM6hqN8IF3tz4.CfCpQyNLTPe%2BoV%2BvuWYFgZUOoUYUUqf%2FBYA1Db8iX30
-      // Attempt to mock express-session cookie (connect.sid)
-      const sessionID = uid(24);
-      const secret = "session secret";
-      const signed = "s:" + signature.sign(sessionID, secret);
-      const serializedCookie = cookie.serialize("auth0", signed);
-      const rawCookie = serializedCookie.split("=")[1];
-
-      cy.setCookie("auth0", rawCookie, {
-        log: true,
-        httpOnly: true,
-        secure: true,
-        domain: Cypress.env("auth0_domain"),
-      });
-      cy.setCookie("auth0_compat", rawCookie, {
-        log: true,
-        httpOnly: true,
-        secure: true,
-        domain: Cypress.env("auth0_domain"),
-      });
-
+    }).then((profile: any) => {
       // Send user to backend to be set on session
       cy.request("POST", "http://localhost:3001/testData/setUserOnSession", {
-        profile: persistedSession.user,
-      });
-
-      cy.request(`http://localhost:3001/testData/getSessionId`).then((data) => {
-        console.log("data", data);
-        cy.setCookie("connect.sid", data.body.sessionId);
+        profile,
       });
     });
+  });
+});
+
+Cypress.Commands.add("logoutByAuth0", (returnTo) => {
+  const logoutUrl = auth.client.buildLogoutUrl({
+    clientID: Cypress.env("auth0_clientID"),
+  });
+
+  cy.request(logoutUrl).then(() => {
+    cy.request("POST", "http://localhost:3001/logout");
   });
 });
