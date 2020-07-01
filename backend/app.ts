@@ -44,6 +44,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     unset: "destroy",
+    rolling: true,
   })
 );
 app.use(passport.initialize());
