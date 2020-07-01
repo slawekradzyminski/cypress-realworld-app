@@ -25,7 +25,6 @@ passport.use(
       // accessToken is the token to call Auth0 API (not needed in the most cases)
       // extraParams.id_token has the JSON Web Token
       // profile has all the information from the user
-      console.log("in auth0 strategy", profile);
 
       if (profile) {
         const user = getUserById(profile.id);
@@ -65,13 +64,11 @@ passport.use(
 );
 
 passport.serializeUser(function (user: User, done) {
-  console.log("serialize user: ", user);
   done(null, user.id);
 });
 
 passport.deserializeUser(function (id: string, done) {
   const user = getUserById(id);
-  console.log("deserialize user: ", user);
   done(null, user);
 });
 
