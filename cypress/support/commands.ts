@@ -1,9 +1,6 @@
 // @ts-check
 ///<reference path="../global.d.ts" />
 
-import { sync as uid } from "uid-safe";
-import cookie from "cookie";
-import signature from "cookie-signature";
 import { WebAuth } from "auth0-js";
 import { pick } from "lodash/fp";
 import { format as formatDate } from "date-fns";
@@ -351,5 +348,38 @@ Cypress.Commands.add("logoutByAuth0", (returnTo) => {
 
   cy.request(logoutUrl).then(() => {
     cy.request("POST", "http://localhost:3001/logout");
+  });
+});
+
+Cypress.Commands.add("loginByAuth0v2", (username, password) => {
+  Cypress.log({
+    name: "loginByAuth0",
+    displayName: "LOGIN BY AUTH0",
+    message: [`🔒 Login as ${username}`],
+  });
+
+  cy.wrap(
+    new Cypress.Promise((resolve, reject) => {
+      auth.client.login(
+        {
+          realm: "Username-Password-Authentication",
+          username,
+          password,
+          scope: Cypress.env("auth0_scope"),
+          audience: Cypress.env("auth0_audience"),
+          // @ts-ignore
+          client_secret: Cypress.env("auth0_clientSecret"),
+        },
+        (err, response) => {
+          if (err) {
+            return reject(new Error(err.description));
+          }
+
+          resolve(response);
+        }
+      );
+    })
+  ).then((response: any) => {
+    localStorage.setItem("accessToken", response.accessToken);
   });
 });
