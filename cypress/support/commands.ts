@@ -2,6 +2,7 @@
 ///<reference path="../global.d.ts" />
 
 import { WebAuth } from "auth0-js";
+import { createAuth0Client } from "auth0-spa-js";
 import { pick } from "lodash/fp";
 import { format as formatDate } from "date-fns";
 
@@ -351,6 +352,7 @@ Cypress.Commands.add("logoutByAuth0", (returnTo) => {
   });
 });
 
+// @ts-ignore
 Cypress.Commands.add("loginByAuth0v2", (username, password) => {
   Cypress.log({
     name: "loginByAuth0",
@@ -381,5 +383,32 @@ Cypress.Commands.add("loginByAuth0v2", (username, password) => {
     })
   ).then((response: any) => {
     localStorage.setItem("accessToken", response.accessToken);
+  });
+});
+
+Cypress.Commands.add("loginByAuth0v3", (username, password) => {
+  Cypress.log({
+    name: "loginByAuth0",
+    displayName: "LOGIN BY AUTH0",
+    message: [`🔒 Login as ${username}`],
+  });
+
+  createAuth0Client({
+    domain: Cypress.env("auth0_domain"),
+    client_id: Cypress.env("auth0_clientID"),
+    redirect_uri: "http://localhost:3000",
+    cacheLocation: "localstorage",
+  }).then((auth0: any) => {
+    console.log("auth0: ", auth0);
+    auth0
+      .loginWithRedirect()
+      .then((data: any) => {
+        console.log("after login With redirect", data);
+      })
+      .catch((err: any) => {
+        console.log("error", err);
+      });
+
+    //localStorage.setItem("accessToken", auth0.accessToken);
   });
 });
