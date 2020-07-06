@@ -1,6 +1,7 @@
 // @ts-check
 ///<reference path="../global.d.ts" />
 
+import jwt_decode from "jwt-decode";
 import { WebAuth } from "auth0-js";
 import { createAuth0Client } from "auth0-spa-js";
 import { pick } from "lodash/fp";
@@ -383,6 +384,17 @@ Cypress.Commands.add("loginByAuth0v2", (username, password) => {
     })
   ).then((response: any) => {
     localStorage.setItem("accessToken", response.accessToken);
+    return new Cypress.Promise((resolve, reject) => {
+      auth.client.userInfo(response.accessToken, (err, user) => {
+        if (err) {
+          return reject(err);
+        }
+
+        resolve(user);
+      });
+    }).then((user: any) => {
+      localStorage.setItem("user", user);
+    });
   });
 });
 
@@ -400,15 +412,105 @@ Cypress.Commands.add("loginByAuth0v3", (username, password) => {
     cacheLocation: "localstorage",
   }).then((auth0: any) => {
     console.log("auth0: ", auth0);
-    auth0
-      .loginWithRedirect()
-      .then((data: any) => {
-        console.log("after login With redirect", data);
-      })
-      .catch((err: any) => {
-        console.log("error", err);
-      });
 
+    auth0.buildAuthorizeUrl().then((url: any) => {
+      const client_id = Cypress.env("auth0_clientID");
+      const client_secret = Cypress.env("auth0_clientSecret");
+      const audience = Cypress.env("auth_audience");
+      const scope = "openid profile email";
+
+      console.log("URL: ", url);
+
+      const options = {
+        method: "POST",
+        url,
+        body: {
+          grant_type: "password",
+          username,
+          password,
+          audience,
+          scope,
+          client_id,
+          client_secret,
+        },
+      };
+
+      cy.request(options).then(({ body }) => {
+        const { accessToken, idToken } = body;
+        const user = jwt_decode(idToken);
+        window.localStorage.setItem("accessToken", accessToken);
+        window.localStorage.setItem("user", user);
+      });
+    });
     //localStorage.setItem("accessToken", auth0.accessToken);
+  });
+});
+
+Cypress.Commands.add("loginByAuth0Node", (username: string, password: string) => {
+  cy.log(`Logging in as ${username}`);
+  const client_id = Cypress.env("auth0_clientID");
+  const client_secret = Cypress.env("auth0_clientSecret");
+  const audience = Cypress.env("auth_audience");
+  const scope = "openid profile email";
+
+  const options = {
+    method: "POST",
+    url: `https://${Cypress.env("auth0_domain")}/authorize`,
+    body: {
+      grant_type: "password",
+      username,
+      password,
+      audience,
+      scope,
+      client_id,
+      client_secret,
+    },
+  };
+
+  cy.request(options).then(({ body }) => {
+    const { accessToken, idToken } = body;
+    const user = jwt_decode(idToken);
+    window.localStorage.setItem("accessToken", accessToken);
+    window.localStorage.setItem("user", user);
+  });
+});
+
+Cypress.Commands.add("loginByAuth0Spa", (username: string, password: string) => {
+  cy.log(`Logging in as ${username}`);
+  const client_id = Cypress.env("auth0_clientID");
+  const client_secret = Cypress.env("auth0_clientSecret");
+  const audience = Cypress.env("auth_audience");
+  const scope = "openid profile email";
+
+  const options = {
+    method: "POST",
+    url: Cypress.env("auth0_domain"),
+    body: {
+      grant_type: "password",
+      username,
+      password,
+      audience,
+      scope,
+      client_id,
+      client_secret,
+    },
+  };
+  cy.request(options).then(({ body }) => {
+    const { access_token, expires_in, id_token } = body;
+    const key = `@@auth0spajs@@::${client_id}::${audience}::${scope}`;
+    const auth0Cache = {
+      body: {
+        client_id,
+        access_token,
+        id_token,
+        scope,
+        expires_in,
+        decodedToken: {
+          user: jwt_decode(id_token),
+        },
+      },
+      expiresAt: Math.floor(Date.now() / 1000) + expires_in,
+    };
+    window.localStorage.setItem(key, JSON.stringify(auth0Cache));
   });
 });
