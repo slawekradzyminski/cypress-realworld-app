@@ -53,6 +53,7 @@
     "@types/yup": "0.29.3",
     "@xstate/react": "0.8.1",
     "auth0-js": "^9.13.3",
+    "auth0-spa-js": "^1.6.5",
     "axios": "0.19.2",
     "bcryptjs": "2.4.3",
     "concurrently": "5.2.0",
