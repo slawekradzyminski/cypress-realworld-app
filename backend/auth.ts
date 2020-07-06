@@ -3,15 +3,17 @@ import bcrypt from "bcryptjs";
 import passport from "passport";
 import express, { Request, Response } from "express";
 import { User } from "../src/models/user";
-import { getUserBy, getUserById, createUser } from "./database";
+import { getUserBy, getUserById } from "./database";
+import { checkJwt } from "./helpers";
 
 dotenv.config({ path: ".env" });
 dotenv.config({ path: ".env.dev" });
 
-const Auth0Strategy = require("passport-auth0");
+//const Auth0Strategy = require("passport-auth0");
 const LocalStrategy = require("passport-local").Strategy;
 const router = express.Router();
 
+/*
 passport.use(
   new Auth0Strategy(
     {
@@ -43,6 +45,7 @@ passport.use(
     }
   )
 );
+*/
 
 // configure passport for local strategy
 passport.use(
@@ -73,6 +76,7 @@ passport.deserializeUser(function (id: string, done) {
 });
 
 // authentication routes
+/*
 router.get(
   "/loginAuth0",
   passport.authenticate("auth0", {
@@ -93,6 +97,7 @@ router.get(
     res.redirect("/");
   }
 );
+*/
 
 router.post("/login", passport.authenticate("local"), (req: Request, res: Response): void => {
   if (req.body.remember) {
@@ -112,7 +117,7 @@ router.post("/logout", (req: Request, res: Response): void => {
   });
 });
 
-router.get("/checkAuth", (req, res) => {
+router.get("/checkAuth", checkJwt, (req, res) => {
   /* istanbul ignore next */
   if (!req.user) {
     res.status(401).json({ error: "User is unauthorized" });

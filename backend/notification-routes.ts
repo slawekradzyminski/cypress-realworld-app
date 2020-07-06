@@ -6,7 +6,7 @@ import {
   updateNotificationById,
   getUnreadNotificationsByUserId,
 } from "./database";
-import { ensureAuthenticated, validateMiddleware } from "./helpers";
+import { ensureAuthenticated, validateMiddleware, checkJwt } from "./helpers";
 import {
   isNotificationsBodyValidator,
   shortIdValidation,
@@ -17,7 +17,7 @@ const router = express.Router();
 // Routes
 
 //GET /notifications/
-router.get("/", ensureAuthenticated, (req, res) => {
+router.get("/", checkJwt, ensureAuthenticated, (req, res) => {
   /* istanbul ignore next */
   const notifications = getUnreadNotificationsByUserId(req.user?.id!);
 
@@ -28,6 +28,7 @@ router.get("/", ensureAuthenticated, (req, res) => {
 //POST /notifications/bulk
 router.post(
   "/bulk",
+  checkJwt,
   ensureAuthenticated,
   validateMiddleware([...isNotificationsBodyValidator]),
   (req, res) => {
@@ -44,6 +45,7 @@ router.post(
 //PATCH /notifications/:notificationId - scoped-user
 router.patch(
   "/:notificationId",
+  checkJwt,
   ensureAuthenticated,
   validateMiddleware([shortIdValidation("notificationId"), ...isNotificationPatchValidator]),
   (req, res) => {

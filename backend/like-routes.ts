@@ -2,7 +2,7 @@
 
 import express from "express";
 import { getLikesByTransactionId, createLikes } from "./database";
-import { ensureAuthenticated, validateMiddleware } from "./helpers";
+import { ensureAuthenticated, validateMiddleware, checkJwt } from "./helpers";
 import { shortIdValidation } from "./validators";
 const router = express.Router();
 
@@ -11,6 +11,7 @@ const router = express.Router();
 //GET /likes/:transactionId
 router.get(
   "/:transactionId",
+  checkJwt,
   ensureAuthenticated,
   validateMiddleware([shortIdValidation("transactionId")]),
   (req, res) => {
@@ -25,6 +26,7 @@ router.get(
 //POST /likes/:transactionId
 router.post(
   "/:transactionId",
+  checkJwt,
   ensureAuthenticated,
   validateMiddleware([shortIdValidation("transactionId")]),
   (req, res) => {
