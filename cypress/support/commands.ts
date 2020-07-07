@@ -3,7 +3,7 @@
 
 import jwt_decode from "jwt-decode";
 import { WebAuth } from "auth0-js";
-import { createAuth0Client } from "auth0-spa-js";
+import createAuth0Client from "@auth0/auth0-spa-js";
 import { pick } from "lodash/fp";
 import { format as formatDate } from "date-fns";
 
@@ -443,6 +443,39 @@ Cypress.Commands.add("loginByAuth0v3", (username, password) => {
       });
     });
     //localStorage.setItem("accessToken", auth0.accessToken);
+  });
+});
+
+Cypress.Commands.add("loginByAuth0v4", (username: string, password: string) => {
+  Cypress.log({
+    name: "loginViaAuth0 v4",
+  });
+
+  const options = {
+    method: "POST",
+    url: `https://${Cypress.env("auth0_domain")}/oauth/token`,
+    body: {
+      grant_type: "password",
+      username,
+      password,
+      audience: Cypress.env("auth0_audience"),
+      scope: "openid profile email",
+      client_id: Cypress.env("auth0_clientID"),
+      client_secret: Cypress.env("auth0_clientSecret"),
+    },
+  };
+  cy.request(options).then((body: any) => {
+    const { access_token, expires_in, id_token } = body;
+    const auth0State = {
+      nonce: "",
+      state: "some-random-state",
+    };
+    const callbackUrl = `/callback#access_token=${access_token}&scope=openid&id_token=${id_token}&expires_in=${expires_in}&token_type=Bearer&state=${auth0State.state}`;
+    cy.visit(callbackUrl, {
+      onBeforeLoad(win) {
+        win.document.cookie = "com.auth0.auth.some-random-state=" + JSON.stringify(auth0State);
+      },
+    });
   });
 });
 

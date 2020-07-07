@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@auth0/auth0-spa-js@^1.6.2":
+"@auth0/auth0-spa-js@^1.10.0":
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/@auth0/auth0-spa-js/-/auth0-spa-js-1.10.0.tgz#1be6536109a7c12255ceecae51b2a8fe82e9535b"
   integrity sha512-EUpnGK6GnKUiHnGbP+Y+yKD+FZ8/kEkjPeLxQi0gCGJkvTSLnKd/IbPJLUzyzXFTqDCw1ZkTu24/Uw5B3Ou2JQ==
@@ -2917,13 +2917,6 @@ auth0-js@^9.13.3:
     superagent "^3.8.3"
     url-join "^4.0.1"
     winchan "^0.2.2"
-
-auth0-spa-js@^1.6.5:
-  version "1.6.5"
-  resolved "https://registry.yarnpkg.com/auth0-spa-js/-/auth0-spa-js-1.6.5.tgz#4e65e8398498275dfce5f58f6478448f60495782"
-  integrity sha512-qY2a7ovEcYxNJfyYMTUPnAcR6uqgo+mxhUFe2kwmkTwswkvy50TjbS9Xnj1Xi5AXgl23iLMcBos3qVWNci4ZYQ==
-  dependencies:
-    "@auth0/auth0-spa-js" "^1.6.2"
 
 autoprefixer@^9.6.1:
   version "9.8.0"
