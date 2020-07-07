@@ -2,6 +2,7 @@ import { Machine, assign, interpret, State } from "xstate";
 import { omit } from "lodash/fp";
 import { httpClient } from "../utils/asyncUtils";
 import { history } from "../utils/historyUtils";
+import { auth0 } from "../utils/auth0Utils";
 import { User } from "../models";
 
 export interface AuthMachineSchema {
@@ -114,6 +115,9 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
       getUserProfile: async (ctx, event) => {
         const resp = await httpClient.get(`http://localhost:3001/checkAuth`);
         return resp.data;
+        /*const user = await auth0.getUser();
+        console.log("USER:", user);
+        return user;*/
       },
       updateProfile: async (ctx, event: any) => {
         const payload = omit("type", event);
