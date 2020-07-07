@@ -393,7 +393,7 @@ Cypress.Commands.add("loginByAuth0v2", (username, password) => {
         resolve(user);
       });
     }).then((user: any) => {
-      localStorage.setItem("user", user);
+      localStorage.setItem("user", JSON.stringify(user));
     });
   });
 });

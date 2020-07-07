@@ -11,9 +11,8 @@ describe("Auth0", function () {
   });
 
   it("should allow a visitor to login, onboard and logout", function () {
-    cy.loginByAuth0v3(Cypress.env("auth0_username"), Cypress.env("auth0_password"));
+    cy.loginByAuth0v2(Cypress.env("auth0_username"), Cypress.env("auth0_password"));
 
-    /*
     cy.visit("/");
 
     cy.wait("@checkAuth");
@@ -22,6 +21,7 @@ describe("Auth0", function () {
     cy.getBySel("user-onboarding-dialog").should("be.visible");
     cy.getBySel("user-onboarding-next").click();
 
+    /*
     cy.getBySel("user-onboarding-dialog-title").should("contain", "Create Bank Account");
 
     cy.getBySelLike("bankName-input").type("The Best Bank");
