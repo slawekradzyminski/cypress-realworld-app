@@ -11,9 +11,9 @@ describe("Auth0", function () {
   });
 
   it("should allow a visitor to login, onboard and logout", function () {
-    cy.loginByAuth0(Cypress.env("auth0_username"), Cypress.env("auth0_password"));
+    cy.loginByAuth0Node(Cypress.env("auth0_username"), Cypress.env("auth0_password"));
 
-    //cy.wait("@checkAuth");
+    cy.wait("@checkAuth");
 
     // Onboarding
     cy.getBySel("user-onboarding-dialog").should("be.visible");

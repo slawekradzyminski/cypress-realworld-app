@@ -323,6 +323,17 @@ Cypress.Commands.add("auth0EnterUserCredentials", (username, password) => {
   cy.auth0AllowApp();
 });
 
+Cypress.Commands.add("loginByAuth0Node", (username, password) => {
+  // See https://github.com/cypress-io/cypress/issues/408
+  // Needed to clear all cookies from all domains
+  // Might only be necessary for "first" login
+  // @ts-ignore
+  cy.clearCookies({ domain: null });
+  cy.visit("/login");
+  cy.auth0AllowApp();
+  cy.auth0EnterUserCredentials(username, password);
+});
+
 Cypress.Commands.add("loginByAuth0", (username, password) => {
   // See https://github.com/cypress-io/cypress/issues/408
   // Needed to clear all cookies from all domains
