@@ -17,6 +17,8 @@ export default (on, config) => {
   config.env.auth0_scope = process.env.AUTH0_SCOPE;
   config.env.auth0_username = process.env.AUTH0_USERNAME;
   config.env.auth0_password = process.env.AUTH0_PASSWORD;
+  config.env.auth0_redirect_uri = process.env.AUTH0_REDIRECT_URI;
+  config.env.auth0_cacheLocation = process.env.AUTH0_CACHE_LOCATION;
 
   const testDataApiEndpoint = `${config.env.apiUrl}/testData`;
 

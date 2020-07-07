@@ -3,9 +3,10 @@
 
 import jwt_decode from "jwt-decode";
 import { WebAuth } from "auth0-js";
-import createAuth0Client from "@auth0/auth0-spa-js";
 import { pick } from "lodash/fp";
 import { format as formatDate } from "date-fns";
+import { auth0CreateLoginUrl, auth0Logout } from "../../src/utils/auth0Utils";
+import { Auth0ClientOptions } from "@auth0/auth0-spa-js";
 
 const auth = new WebAuth({
   domain: Cypress.env("auth0_domain"),
@@ -296,6 +297,71 @@ Cypress.Commands.add("database", (operation, entity, query, logTask = false) => 
   });
 });
 
+Cypress.Commands.add("auth0AllowApp", () => {
+  cy.get("body").then(($body) => {
+    // If OAuth consent screen, allow
+    if ($body.find("#allow").length > 0) {
+      cy.get("#allow").click();
+    }
+  });
+});
+
+Cypress.Commands.add("auth0EnterUserCredentials", (username, password) => {
+  cy.wait(500);
+  cy.get("body").then(($body) => {
+    if ($body.find(".auth0-lock-last-login-pane").length > 0) {
+      // Use the saved credentials to re-authenticate
+      cy.get('.auth0-lock-last-login-pane a[type="button"]').click();
+    } else {
+      // Fill in login form
+      cy.get('[name="email"].auth0-lock-input').clear().type(username);
+      cy.get('[name="password"].auth0-lock-input').clear().type(password, { log: false });
+      cy.get(".auth0-lock-submit").click();
+    }
+  });
+  cy.wait(500);
+  cy.auth0AllowApp();
+});
+
+Cypress.Commands.add("loginByAuth0", (username, password) => {
+  // See https://github.com/cypress-io/cypress/issues/408
+  // Needed to clear all cookies from all domains
+  // Might only be necessary for "first" login
+  // @ts-ignore
+  cy.clearCookies({ domain: null });
+  const auth0ClientConfig: Auth0ClientOptions = {
+    domain: Cypress.env("auth0_domain"),
+    client_id: Cypress.env("auth0_clientID"),
+    redirect_uri: Cypress.env("auth0_redirect_uri"),
+    cacheLocation: Cypress.env("auth0_cacheLocation"),
+  };
+
+  cy.wrap(auth0CreateLoginUrl(auth0ClientConfig)).then((url) => {
+    Cypress.log({
+      name: "loginByAuth0",
+      displayName: "Login with Auth0",
+      message: [`Username: ${username}`],
+      consoleProps() {
+        return {
+          url,
+        };
+      },
+    });
+    cy.window().then((window) => {
+      // cy.visit() doesn't work 🤷‍♂️
+      window.location.assign(url);
+      cy.auth0AllowApp();
+      cy.auth0EnterUserCredentials(username, password);
+    });
+  });
+});
+
+Cypress.Commands.add("logoutAuth0", () => {
+  auth0Logout();
+  cy.reload();
+});
+
+/*
 // @ts-ignore
 Cypress.Commands.add("loginByAuth0", (username, password) => {
   Cypress.log({
@@ -547,3 +613,4 @@ Cypress.Commands.add("loginByAuth0Spa", (username: string, password: string) => 
     window.localStorage.setItem(key, JSON.stringify(auth0Cache));
   });
 });
+*/
