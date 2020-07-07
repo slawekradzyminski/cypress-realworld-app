@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import passport from "passport";
+const { auth } = require("express-openid-connect");
 import express, { Request, Response } from "express";
 import { User } from "../src/models/user";
 import { getUserBy, getUserById } from "./database";
@@ -12,6 +13,27 @@ dotenv.config({ path: ".env.dev" });
 //const Auth0Strategy = require("passport-auth0");
 const LocalStrategy = require("passport-local").Strategy;
 const router = express.Router();
+
+const config = {
+  required: false,
+  auth0Logout: true,
+  appSession: {
+    secret: "a long, randomly-generated string stored in env",
+  },
+  baseURL: "http://localhost:3000",
+  clientID: process.env.AUTH0_CLIENTID,
+  issuerBaseURL: `https://${process.env.AUTH0_DOMAIN}`,
+  // @ts-ignore
+  handleCallback: async function (req, res, next) {
+    console.log("in callback: ", req.openidTokens);
+    // Store recevied tokens (access and ID in this case) in server-side storage.
+    req.session.openidTokens = req.openidTokens;
+    next();
+  },
+};
+
+// auth router attaches /login, /logout, and /callback routes to the baseURL
+router.use(auth(config));
 
 /*
 passport.use(
@@ -99,6 +121,7 @@ router.get(
 );
 */
 
+/*
 router.post("/login", passport.authenticate("local"), (req: Request, res: Response): void => {
   if (req.body.remember) {
     req.session!.cookie.maxAge = 24 * 60 * 60 * 1000 * 30; // Expire in 30 days
@@ -116,8 +139,9 @@ router.post("/logout", (req: Request, res: Response): void => {
     res.redirect("/");
   });
 });
+*/
 
-router.get("/checkAuth", checkJwt, (req, res) => {
+router.get("/checkAuth", (req, res) => {
   /* istanbul ignore next */
   if (!req.user) {
     res.status(401).json({ error: "User is unauthorized" });
