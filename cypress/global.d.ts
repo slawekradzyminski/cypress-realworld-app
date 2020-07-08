@@ -115,5 +115,10 @@ declare namespace Cypress {
      * Create Transaction via bypassing UI and using XState createTransactionService
      */
     createTransaction(payload): Chainable<any>;
+    /** Toast command from cypress-movie for the ui-demo spec */
+    toast(message: string, options?: {}): Chainable<void>;
+
+    /**clearViewport command from cypress-movie */
+    clearViewport(): Chainable<void>;
   }
 }
