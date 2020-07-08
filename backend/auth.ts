@@ -1,73 +1,11 @@
-import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import passport from "passport";
-const { auth } = require("express-openid-connect");
 import express, { Request, Response } from "express";
 import { User } from "../src/models/user";
 import { getUserBy, getUserById } from "./database";
-import { checkJwt } from "./helpers";
 
-dotenv.config({ path: ".env" });
-dotenv.config({ path: ".env.dev" });
-
-//const Auth0Strategy = require("passport-auth0");
 const LocalStrategy = require("passport-local").Strategy;
 const router = express.Router();
-
-const config = {
-  required: false,
-  auth0Logout: true,
-  appSession: {
-    secret: "a long, randomly-generated string stored in env",
-  },
-  baseURL: "http://localhost:3000",
-  clientID: process.env.AUTH0_CLIENTID,
-  issuerBaseURL: `https://${process.env.AUTH0_DOMAIN}`,
-  // @ts-ignore
-  handleCallback: async function (req, res, next) {
-    console.log("in callback: ", req.openidTokens);
-    // Store recevied tokens (access and ID in this case) in server-side storage.
-    req.session.openidTokens = req.openidTokens;
-    next();
-  },
-};
-
-// auth router attaches /login, /logout, and /callback routes to the baseURL
-router.use(auth(config));
-
-/*
-passport.use(
-  new Auth0Strategy(
-    {
-      domain: process.env.AUTH0_DOMAIN,
-      clientID: process.env.AUTH0_CLIENTID,
-      clientSecret: process.env.AUTH0_CLIENTSECRET,
-      callbackURL: "http://localhost:3000/callback",
-    },
-    // @ts-ignore
-    function (accessToken, refreshToken, extraParams, profile, done) {
-      // accessToken is the token to call Auth0 API (not needed in the most cases)
-      // extraParams.id_token has the JSON Web Token
-      // profile has all the information from the user
-
-      if (profile) {
-        const user = getUserById(profile.id);
-        if (!user) {
-          createUser({
-            id: profile.id,
-            username: profile.nickname,
-            firstName: profile.displayName,
-            email: profile.emails[0].value,
-            avatar: profile.picture,
-          });
-        }
-      }
-
-      return done(null, profile);
-    }
-  )
-);
-*/
 
 // configure passport for local strategy
 passport.use(
@@ -98,30 +36,7 @@ passport.deserializeUser(function (id: string, done) {
 });
 
 // authentication routes
-/*
-router.get(
-  "/loginAuth0",
-  passport.authenticate("auth0", {
-    scope: "openid email profile",
-  }),
-  function (req, res) {
-    res.redirect("/");
-  }
-);
 
-router.get(
-  "/callback",
-  passport.authenticate("auth0", { failureRedirect: "/loginAuth0" }),
-  function (req, res) {
-    if (!req.user) {
-      throw new Error("user null");
-    }
-    res.redirect("/");
-  }
-);
-*/
-
-/*
 router.post("/login", passport.authenticate("local"), (req: Request, res: Response): void => {
   if (req.body.remember) {
     req.session!.cookie.maxAge = 24 * 60 * 60 * 1000 * 30; // Expire in 30 days
@@ -139,7 +54,6 @@ router.post("/logout", (req: Request, res: Response): void => {
     res.redirect("/");
   });
 });
-*/
 
 router.get("/checkAuth", (req, res) => {
   /* istanbul ignore next */
