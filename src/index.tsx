@@ -1,10 +1,16 @@
+import dotenv from "dotenv";
 import React from "react";
 import ReactDOM from "react-dom";
 import { Router } from "react-router-dom";
+import { createMuiTheme, ThemeProvider } from "@material-ui/core";
+import { Auth0Provider } from "@auth0/auth0-react";
 import { history } from "./utils/historyUtils";
 
 import App from "./containers/App";
-import { createMuiTheme, ThemeProvider } from "@material-ui/core";
+import AppAuth0 from "./containers/AppAuth0";
+
+dotenv.config({ path: ".env" });
+dotenv.config({ path: ".env.dev" });
 
 const theme = createMuiTheme({
   palette: {
@@ -14,11 +20,36 @@ const theme = createMuiTheme({
   },
 });
 
-ReactDOM.render(
-  <Router history={history}>
-    <ThemeProvider theme={theme}>
-      <App />
-    </ThemeProvider>
-  </Router>,
-  document.getElementById("root")
-);
+const onRedirectCallback = (appState: any) => {
+  console.log({ appState });
+  history.replace((appState && appState.returnTo) || window.location.pathname);
+};
+
+if (process.env.REACT_APP_AUTH0) {
+  ReactDOM.render(
+    <Auth0Provider
+      domain={process.env.AUTH0_DOMAIN!}
+      clientId={process.env.AUTH0_CLIENTID!}
+      redirectUri={window.location.origin}
+      audience={process.env.AUTH0_AUDIENCE}
+      scope={process.env.AUTH0_SCOPE}
+      onRedirectCallback={onRedirectCallback}
+    >
+      <Router history={history}>
+        <ThemeProvider theme={theme}>
+          <AppAuth0 />
+        </ThemeProvider>
+      </Router>
+    </Auth0Provider>,
+    document.getElementById("root")
+  );
+} else {
+  ReactDOM.render(
+    <Router history={history}>
+      <ThemeProvider theme={theme}>
+        <App />
+      </ThemeProvider>
+    </Router>,
+    document.getElementById("root")
+  );
+}
