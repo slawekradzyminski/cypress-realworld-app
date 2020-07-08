@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import React from "react";
 import ReactDOM from "react-dom";
 import { Router } from "react-router-dom";
@@ -8,9 +7,6 @@ import { history } from "./utils/historyUtils";
 
 import App from "./containers/App";
 import AppAuth0 from "./containers/AppAuth0";
-
-dotenv.config({ path: ".env" });
-dotenv.config({ path: ".env.dev" });
 
 const theme = createMuiTheme({
   palette: {
@@ -27,20 +23,22 @@ const onRedirectCallback = (appState: any) => {
 
 if (process.env.REACT_APP_AUTH0) {
   ReactDOM.render(
-    <Auth0Provider
-      domain={process.env.AUTH0_DOMAIN!}
-      clientId={process.env.AUTH0_CLIENTID!}
-      redirectUri={window.location.origin}
-      audience={process.env.AUTH0_AUDIENCE}
-      scope={process.env.AUTH0_SCOPE}
-      onRedirectCallback={onRedirectCallback}
-    >
-      <Router history={history}>
-        <ThemeProvider theme={theme}>
-          <AppAuth0 />
-        </ThemeProvider>
-      </Router>
-    </Auth0Provider>,
+    <React.StrictMode>
+      <Auth0Provider
+        domain={process.env.REACT_APP_AUTH0_DOMAIN!}
+        clientId={process.env.REACT_APP_AUTH0_CLIENTID!}
+        redirectUri={window.location.origin}
+        audience={process.env.REACT_APP_AUTH0_AUDIENCE}
+        scope={process.env.REACT_APP_AUTH0_SCOPE}
+        onRedirectCallback={onRedirectCallback}
+      >
+        <Router history={history}>
+          <ThemeProvider theme={theme}>
+            <AppAuth0 />
+          </ThemeProvider>
+        </Router>
+      </Auth0Provider>
+    </React.StrictMode>,
     document.getElementById("root")
   );
 } else {
