@@ -2,7 +2,7 @@ import { Machine, assign, interpret, State } from "xstate";
 import { omit } from "lodash/fp";
 import { httpClient } from "../utils/asyncUtils";
 import { history } from "../utils/historyUtils";
-import { auth0 } from "../utils/auth0Utils";
+//import { auth0 } from "../utils/auth0Utils";
 import { User } from "../models";
 
 export interface AuthMachineSchema {
