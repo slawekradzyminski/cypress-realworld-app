@@ -15,6 +15,7 @@
     "node": ">=12"
   },
   "dependencies": {
+    "@auth0/auth0-react": "^1.0.0",
     "@auth0/auth0-spa-js": "^1.10.0",
     "@babel/cli": "7.10.1",
     "@babel/core": "7.10.2",
