@@ -329,6 +329,17 @@ Cypress.Commands.add("loginByAuth0", (username, password) => {
   // Might only be necessary for "first" login
   // @ts-ignore
   cy.clearCookies({ domain: null });
+  cy.visit("/");
+  cy.auth0AllowApp();
+  cy.auth0EnterUserCredentials(username, password);
+});
+
+Cypress.Commands.add("loginByAuth0v2", (username, password) => {
+  // See https://github.com/cypress-io/cypress/issues/408
+  // Needed to clear all cookies from all domains
+  // Might only be necessary for "first" login
+  // @ts-ignore
+  cy.clearCookies({ domain: null });
   const auth0ClientConfig: Auth0ClientOptions = {
     domain: Cypress.env("auth0_domain"),
     client_id: Cypress.env("auth0_clientID"),
@@ -356,7 +367,7 @@ Cypress.Commands.add("loginByAuth0", (username, password) => {
   });
 });
 
-Cypress.Commands.add("logoutAuth0", () => {
+Cypress.Commands.add("logoutByAuth0", () => {
   auth0Logout();
   cy.reload();
 });

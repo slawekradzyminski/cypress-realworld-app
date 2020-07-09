@@ -2,7 +2,6 @@ import { Machine, assign, interpret, State } from "xstate";
 import { omit } from "lodash/fp";
 import { httpClient } from "../utils/asyncUtils";
 import { history } from "../utils/historyUtils";
-//import { auth0 } from "../utils/auth0Utils";
 import { User } from "../models";
 
 export interface AuthMachineSchema {
@@ -13,6 +12,7 @@ export interface AuthMachineSchema {
     updating: {};
     logout: {};
     refreshing: {};
+    auth0: {};
     authorized: {};
   };
 }
@@ -22,7 +22,8 @@ export type AuthMachineEvents =
   | { type: "LOGOUT" }
   | { type: "UPDATE" }
   | { type: "REFRESH" }
-  | { type: "SIGNUP" };
+  | { type: "SIGNUP" }
+  | { type: "AUTH0" };
 
 export interface AuthMachineContext {
   user?: User;
@@ -32,7 +33,7 @@ export interface AuthMachineContext {
 export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMachineEvents>(
   {
     id: "authentication",
-    initial: "refreshing",
+    initial: "unauthorized",
     context: {
       user: undefined,
       message: undefined,
@@ -43,6 +44,7 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
         on: {
           LOGIN: "loading",
           SIGNUP: "signup",
+          AUTH0: "auth0",
         },
       },
       signup: {
@@ -69,6 +71,16 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
       refreshing: {
         invoke: {
           src: "getUserProfile",
+          onDone: { target: "authorized", actions: "setUserProfile" },
+          onError: { target: "unauthorized", actions: "onError" },
+        },
+        on: {
+          LOGOUT: "logout",
+        },
+      },
+      auth0: {
+        invoke: {
+          src: "getAuth0UserProfile",
           onDone: { target: "authorized", actions: "setUserProfile" },
           onError: { target: "unauthorized", actions: "onError" },
         },
@@ -115,9 +127,20 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
       getUserProfile: async (ctx, event) => {
         const resp = await httpClient.get(`http://localhost:3001/checkAuth`);
         return resp.data;
-        /*const user = await auth0.getUser();
-        console.log("USER:", user);
-        return user;*/
+      },
+      getAuth0UserProfile: (ctx, event) => {
+        // Map Auth0 User fields to our User Model
+        const ourUser = {
+          id: event.user.sub,
+          email: event.user.email,
+          firstName: event.user.nickname,
+          avatar: event.user.picture,
+        };
+
+        // Set Auth0 Access Token in Local Storage for API calls
+        localStorage.setItem("accessToken", event.token);
+
+        return Promise.resolve(ourUser);
       },
       updateProfile: async (ctx, event: any) => {
         const payload = omit("type", event);

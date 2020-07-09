@@ -23,22 +23,20 @@ const onRedirectCallback = (appState: any) => {
 
 if (process.env.REACT_APP_AUTH0) {
   ReactDOM.render(
-    <React.StrictMode>
-      <Auth0Provider
-        domain={process.env.REACT_APP_AUTH0_DOMAIN!}
-        clientId={process.env.REACT_APP_AUTH0_CLIENTID!}
-        redirectUri={window.location.origin}
-        audience={process.env.REACT_APP_AUTH0_AUDIENCE}
-        scope={process.env.REACT_APP_AUTH0_SCOPE}
-        onRedirectCallback={onRedirectCallback}
-      >
-        <Router history={history}>
-          <ThemeProvider theme={theme}>
-            <AppAuth0 />
-          </ThemeProvider>
-        </Router>
-      </Auth0Provider>
-    </React.StrictMode>,
+    <Auth0Provider
+      domain={process.env.REACT_APP_AUTH0_DOMAIN!}
+      clientId={process.env.REACT_APP_AUTH0_CLIENTID!}
+      redirectUri={window.location.origin}
+      audience={process.env.REACT_APP_AUTH0_AUDIENCE}
+      scope={process.env.REACT_APP_AUTH0_SCOPE}
+      onRedirectCallback={onRedirectCallback}
+    >
+      <Router history={history}>
+        <ThemeProvider theme={theme}>
+          <AppAuth0 />
+        </ThemeProvider>
+      </Router>
+    </Auth0Provider>,
     document.getElementById("root")
   );
 } else {

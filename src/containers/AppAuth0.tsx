@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useService, useMachine } from "@xstate/react";
 import { makeStyles } from "@material-ui/core/styles";
 import { CssBaseline } from "@material-ui/core";
@@ -9,7 +9,7 @@ import { authService } from "../machines/authMachine";
 import AlertBar from "../components/AlertBar";
 import { bankAccountsMachine } from "../machines/bankAccountsMachine";
 import PrivateRoutesContainer from "./PrivateRoutesContainer";
-import { withAuthenticationRequired } from "@auth0/auth0-react";
+import { withAuthenticationRequired, useAuth0 } from "@auth0/auth0-react";
 
 // @ts-ignore
 if (window.Cypress) {
@@ -25,6 +25,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const AppAuth0: React.FC = () => {
+  const { isAuthenticated, user, getAccessTokenSilently } = useAuth0();
   const classes = useStyles();
   const [authState] = useService(authService);
   const [, , notificationsService] = useMachine(notificationsMachine);
@@ -33,10 +34,18 @@ const AppAuth0: React.FC = () => {
 
   const [, , bankAccountsService] = useMachine(bankAccountsMachine);
 
+  useEffect(() => {
+    (async function waitForToken() {
+      const token = await getAccessTokenSilently();
+      authService.send("AUTH0", { user, token });
+    })();
+  }, [user, getAccessTokenSilently]);
+
   const isLoggedIn =
-    authState.matches("authorized") ||
-    authState.matches("refreshing") ||
-    authState.matches("updating");
+    isAuthenticated &&
+    (authState.matches("authorized") ||
+      authState.matches("refreshing") ||
+      authState.matches("updating"));
 
   return (
     <div className={classes.root}>
