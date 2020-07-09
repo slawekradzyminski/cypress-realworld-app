@@ -4693,10 +4693,10 @@ cyclist@^1.0.1:
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-1.0.1.tgz#596e9698fd0c80e12038c2b82d6eb1b35b6224d9"
   integrity sha1-WW6WmP0MgOEgOMK4LW6xs1tiJNk=
 
-cypress-movie@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/cypress-movie/-/cypress-movie-2.3.0.tgz#1d8a27b3c217094accfc86283a68fa029db7258e"
-  integrity sha512-0uAxGUeKnpDiktmtYOT0BCuQCkDnZR6Smygve1IFEJBm8wLv+g57spJjiHHVtvJZzy7FqFEAWSMdVCUCuURueQ==
+cypress-movie@^2.3.3:
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/cypress-movie/-/cypress-movie-2.3.3.tgz#c18bf155bbc597e4cf4a74e938f51be8ed641cbe"
+  integrity sha512-sHFBnX3+uEM+DTTR5SCj+utMpD9Tk9U1Do8OHO0xNC21naKi51IR5RdYCVJ/2EqWOhRz9FZIq4Wl7E1mI2PkwA==
   dependencies:
     "@ffmpeg-installer/ffmpeg" "1.0.20"
     arg "4.1.3"
