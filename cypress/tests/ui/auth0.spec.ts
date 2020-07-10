@@ -5,9 +5,7 @@ describe("Auth0", function () {
     cy.task("db:seed");
 
     cy.server();
-    cy.route("POST", "/users").as("signup");
     cy.route("POST", "/bankAccounts").as("createBankAccount");
-    cy.route("GET", "/checkAuth").as("checkAuth");
   });
 
   it("should allow a visitor to login, onboard and logout", function () {
