@@ -176,9 +176,9 @@ export const getUserById = (id: string) => getUserBy("id", id);
 export const getUserByUsername = (username: string) => getUserBy("username", username);
 
 export const createUser = (userDetails: Partial<User>): User => {
-  const password = userDetails.password ? bcrypt.hashSync(userDetails.password!, 10) : "";
+  const password = bcrypt.hashSync(userDetails.password!, 10);
   const user: User = {
-    id: userDetails.id || shortid(),
+    id: shortid(),
     uuid: v4(),
     firstName: userDetails.firstName!,
     lastName: userDetails.lastName!,

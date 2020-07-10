@@ -36,7 +36,6 @@ passport.deserializeUser(function (id: string, done) {
 });
 
 // authentication routes
-
 router.post("/login", passport.authenticate("local"), (req: Request, res: Response): void => {
   if (req.body.remember) {
     req.session!.cookie.maxAge = 24 * 60 * 60 * 1000 * 30; // Expire in 30 days

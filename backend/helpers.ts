@@ -4,8 +4,8 @@ import { validationResult } from "express-validator";
 import jwt from "express-jwt";
 import jwksRsa from "jwks-rsa";
 
-dotenv.config({ path: ".env" });
-dotenv.config({ path: ".env.dev" });
+dotenv.config({ path: ".env.local" });
+dotenv.config();
 
 export const checkJwt = jwt({
   secret: jwksRsa.expressJwtSecret({
@@ -22,6 +22,7 @@ export const checkJwt = jwt({
 });
 
 export const ensureAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+  checkJwt(req, res, next);
   if (req.isAuthenticated()) {
     return next();
   }
