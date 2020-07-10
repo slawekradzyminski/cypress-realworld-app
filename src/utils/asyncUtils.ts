@@ -10,7 +10,7 @@ const httpClient = axios.create({
 
 httpClient.interceptors.request.use((config) => {
   if (process.env.REACT_APP_AUTH0) {
-    const accessToken = localStorage.getItem(process.env.REACT_APP_AUTH0_TOKEN_NAME);
+    const accessToken = localStorage.getItem(process.env.REACT_APP_AUTH0_TOKEN_NAME!);
     config.headers["Authorization"] = `Bearer ${accessToken}`;
   }
   return config;
