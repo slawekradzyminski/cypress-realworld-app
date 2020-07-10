@@ -33,8 +33,6 @@ describe("Auth0", function () {
     cy.getBySel("transaction-list").should("be.visible");
 
     // Logout User
-    cy.logoutByAuth0();
-
     if (isMobile()) {
       cy.getBySel("sidenav-toggle").click();
     }
