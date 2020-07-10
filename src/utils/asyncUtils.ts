@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const httpClient = axios.create({
+const httpClient = axios.create({
   withCredentials: true,
 });
 
@@ -11,3 +11,5 @@ httpClient.interceptors.request.use((config) => {
   }
   return config;
 });
+
+export { httpClient };

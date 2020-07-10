@@ -3,13 +3,13 @@
 import express from "express";
 
 import { getBankTransfersByUserId } from "./database";
-import { ensureAuthenticated, checkJwt } from "./helpers";
+import { ensureAuthenticated } from "./helpers";
 const router = express.Router();
 
 // Routes
 
 //GET /bankTransfers (scoped-user)
-router.get("/", checkJwt, ensureAuthenticated, (req, res) => {
+router.get("/", ensureAuthenticated, (req, res) => {
   /* istanbul ignore next */
   const transfers = getBankTransfersByUserId(req.user?.id!);
 

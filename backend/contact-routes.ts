@@ -3,7 +3,7 @@
 import express from "express";
 
 import { getContactsByUsername, removeContactById, createContactForUser } from "./database";
-import { ensureAuthenticated, validateMiddleware, checkJwt } from "./helpers";
+import { ensureAuthenticated, validateMiddleware } from "./helpers";
 import { shortIdValidation } from "./validators";
 const router = express.Router();
 
@@ -21,7 +21,6 @@ router.get("/:username", (req, res) => {
 //POST /contacts (scoped-user)
 router.post(
   "/",
-  checkJwt,
   ensureAuthenticated,
   validateMiddleware([shortIdValidation("contactUserId")]),
   (req, res) => {
@@ -36,7 +35,6 @@ router.post(
 //DELETE /contacts/:contactId (scoped-user)
 router.delete(
   "/:contactId",
-  checkJwt,
   ensureAuthenticated,
   validateMiddleware([shortIdValidation("contactId")]),
   (req, res) => {

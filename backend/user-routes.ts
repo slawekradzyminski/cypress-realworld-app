@@ -13,7 +13,7 @@ import {
   removeUserFromResults,
 } from "./database";
 import { User } from "../src/models/user";
-import { ensureAuthenticated, validateMiddleware, checkJwt } from "./helpers";
+import { ensureAuthenticated, validateMiddleware } from "./helpers";
 import {
   shortIdValidation,
   searchValidation,
@@ -23,26 +23,20 @@ import {
 const router = express.Router();
 
 // Routes
-router.get("/", checkJwt, ensureAuthenticated, (req, res) => {
+router.get("/", ensureAuthenticated, (req, res) => {
   /* istanbul ignore next */
   const users = removeUserFromResults(req.user?.id!, getAllUsers());
   res.status(200).json({ results: users });
 });
 
-router.get(
-  "/search",
-  checkJwt,
-  ensureAuthenticated,
-  validateMiddleware([searchValidation]),
-  (req, res) => {
-    const { q } = req.query;
+router.get("/search", ensureAuthenticated, validateMiddleware([searchValidation]), (req, res) => {
+  const { q } = req.query;
 
-    /* istanbul ignore next */
-    const users = removeUserFromResults(req.user?.id!, searchUsers(q));
+  /* istanbul ignore next */
+  const users = removeUserFromResults(req.user?.id!, searchUsers(q));
 
-    res.status(200).json({ results: users });
-  }
-);
+  res.status(200).json({ results: users });
+});
 
 router.post("/", userFieldsValidator, validateMiddleware(isUserValidator), (req, res) => {
   const userDetails: User = req.body;
@@ -55,7 +49,6 @@ router.post("/", userFieldsValidator, validateMiddleware(isUserValidator), (req,
 
 router.get(
   "/:userId",
-  checkJwt,
   ensureAuthenticated,
   validateMiddleware([shortIdValidation("userId")]),
   (req, res) => {

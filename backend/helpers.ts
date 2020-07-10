@@ -19,10 +19,9 @@ export const checkJwt = jwt({
   audience: process.env.AUTH0_AUDIENCE,
   issuer: `https://${process.env.AUTH0_DOMAIN}/`,
   algorithms: ["RS256"],
-});
+}).unless({ path: ["/testData/*"] });
 
 export const ensureAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-  checkJwt(req, res, next);
   if (req.isAuthenticated()) {
     return next();
   }
