@@ -40,22 +40,6 @@ describe("Auth0", function () {
     }
     cy.getBySel("sidenav-signout").click();
 
-    cy.location("pathname").should("eq", "/signin");
+    cy.location("pathname").should("eq", "/");
   });
-
-  /*
-  it.skip("should allow a visitor to login, onboard and logout via Auth0 UI", function () {
-    cy.visit("/loginAuth0");
-
-    //cy.contains("a", "Sign Up").click();
-
-    cy.get("#1-email").type(Cypress.env("auth0_username"));
-    cy.get("input[name=password]").type(Cypress.env("auth0_password"));
-
-    cy.get(".auth0-lock-submit").click();
-
-    // Onboarding
-    cy.getBySel("user-onboarding-dialog").should("be.visible");
-  });
-  */
 });

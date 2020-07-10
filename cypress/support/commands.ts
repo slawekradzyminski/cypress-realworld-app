@@ -1,17 +1,10 @@
 // @ts-check
 ///<reference path="../global.d.ts" />
 
-import jwt_decode from "jwt-decode";
-import { WebAuth } from "auth0-js";
 import { pick } from "lodash/fp";
 import { format as formatDate } from "date-fns";
 import { auth0CreateLoginUrl, auth0Logout } from "../../src/utils/auth0Utils";
 import { Auth0ClientOptions } from "@auth0/auth0-spa-js";
-
-const auth = new WebAuth({
-  domain: Cypress.env("auth0_domain"),
-  clientID: Cypress.env("auth0_clientID"),
-});
 
 Cypress.Commands.add("getBySel", (selector, ...args) => {
   return cy.get(`[data-test=${selector}]`, ...args);
@@ -307,7 +300,6 @@ Cypress.Commands.add("auth0AllowApp", () => {
 });
 
 Cypress.Commands.add("auth0EnterUserCredentials", (username, password) => {
-  cy.wait(500);
   cy.get("body").then(($body) => {
     if ($body.find(".auth0-lock-last-login-pane").length > 0) {
       // Use the saved credentials to re-authenticate
@@ -319,17 +311,16 @@ Cypress.Commands.add("auth0EnterUserCredentials", (username, password) => {
       cy.get(".auth0-lock-submit").click();
     }
   });
-  cy.wait(500);
   cy.auth0AllowApp();
 });
 
 Cypress.Commands.add("loginByAuth0", (username, password) => {
-  // See https://github.com/cypress-io/cypress/issues/408
-  // Needed to clear all cookies from all domains
-  // Might only be necessary for "first" login
+  // See https://github.com/cypress-io/cypress/issues/408 needed to clear all cookies from all domains
   // @ts-ignore
   cy.clearCookies({ domain: null });
+
   cy.visit("/");
+
   cy.auth0AllowApp();
   cy.auth0EnterUserCredentials(username, password);
 });

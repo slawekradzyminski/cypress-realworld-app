@@ -17,7 +17,6 @@ const theme = createMuiTheme({
 });
 
 const onRedirectCallback = (appState: any) => {
-  console.log({ appState });
   history.replace((appState && appState.returnTo) || window.location.pathname);
 };
 
