@@ -37,7 +37,7 @@ describe("User Sign-up and Login", function () {
     cy.route("POST", "/bankAccounts").as("createBankAccount");
   });
 
-  it("should allow a visitor to sign-up, login, and logout", function () {
+  it("should allow a visitor to sign-up, login, and logout 🎥", function () {
     const userInfo = {
       firstName: "Bob",
       lastName: "Ross",
