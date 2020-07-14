@@ -3,6 +3,7 @@ import "@cypress/code-coverage/support";
 import "./commands";
 import "cypress-movie/src/toast";
 import "cypress-movie/src/clear-viewport";
+import "cypress-movie/src/arrow";
 
 /**
  * Overwrites some common Cypress commands like "cy.click", "cy.type"

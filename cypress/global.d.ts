@@ -120,5 +120,8 @@ declare namespace Cypress {
 
     /**clearViewport command from cypress-movie */
     clearViewport(): Chainable<void>;
+
+    /**clearViewport command from cypress-movie */
+    arrow(options?: {}): Chainable<void>;
   }
 }

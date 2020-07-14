@@ -1,6 +1,13 @@
-import Dinero from "dinero.js";
 import { User, Transaction } from "../../../src/models";
-import { isMobile } from "../../support/utils";
+
+const { _ } = Cypress;
+
+// TYPES
+
+type TransactionFeedsCtx = {
+  allUsers?: User[];
+  user?: User;
+};
 
 type NewTransactionTestCtx = {
   allUsers?: User[];
@@ -13,6 +20,14 @@ type NewTransactionCtx = {
   authenticatedUser?: User;
 };
 
+type NotificationsCtx = {
+  userA: User;
+  userB: User;
+  userC: User;
+};
+
+// AUTHENTICATION & ONBOARDING
+
 describe("User Sign-up and Login", function () {
   beforeEach(function () {
     cy.task("db:seed");
@@ -20,11 +35,6 @@ describe("User Sign-up and Login", function () {
     cy.server();
     cy.route("POST", "/users").as("signup");
     cy.route("POST", "/bankAccounts").as("createBankAccount");
-  });
-
-  it("should redirect unauthenticated user to signin page", function () {
-    cy.visit("/personal");
-    cy.location("pathname").should("equal", "/signin");
   });
 
   it("should allow a visitor to sign-up, login, and logout", function () {
@@ -64,7 +74,7 @@ describe("User Sign-up and Login", function () {
     // Onboarding
     cy.getBySel("user-onboarding-dialog").should("be.visible");
 
-    cy.toast("Onboarding & Create Bank Account", {
+    cy.toast("User Onboarding", {
       duration: 5000,
       blocking: false,
     });
@@ -83,21 +93,62 @@ describe("User Sign-up and Login", function () {
     cy.getBySel("user-onboarding-dialog-title").should("contain", "Finished");
     cy.getBySel("user-onboarding-dialog-content").should("contain", "You're all set!");
     cy.getBySel("user-onboarding-next").click();
-
-    cy.getBySel("transaction-list").should("be.visible");
-
-    // Logout User
-    cy.toast("Logout User", {
-      duration: 2000,
-      blocking: true,
-    });
-    if (isMobile()) {
-      cy.getBySel("sidenav-toggle").click();
-    }
-    cy.getBySel("sidenav-signout").click();
-    cy.location("pathname").should("eq", "/signin");
   });
 });
+
+// ADD & DELETE BANK ACCOUNTS
+
+describe("Bank Accounts", function () {
+  const ctx: BankAccountsTestCtx = {};
+
+  beforeEach(function () {
+    cy.task("db:seed");
+
+    cy.server();
+    cy.route("POST", "/bankAccounts").as("createBankAccount");
+    cy.route("DELETE", "/bankAccounts/*").as("deleteBankAccount");
+
+    cy.database("find", "users").then((user: User) => {
+      ctx.user = user;
+
+      return cy.loginByXstate(ctx.user.username);
+    });
+  });
+
+  it("creates a new bank account", function () {
+    cy.toast("Add a Bank Account", {
+      duration: 5000,
+      blocking: false,
+    });
+
+    cy.getBySel("sidenav-bankaccounts").click();
+
+    cy.getBySel("bankaccount-new").click();
+
+    cy.getBySelLike("bankName-input").type("The Best Bank");
+    cy.getBySelLike("routingNumber-input").type("987654321");
+    cy.getBySelLike("accountNumber-input").type("123456789");
+    cy.getBySelLike("submit").click();
+  });
+
+  it("soft deletes a bank account", function () {
+    cy.toast("Delete a Bank Account", {
+      duration: 2000,
+      blocking: false,
+    });
+    cy.visit("/bankaccounts");
+    cy.getBySelLike("delete").first().arrow({
+      duration: 1000,
+      blocking: true,
+      text: "Delete Bank",
+      textSize: "5vh",
+    });
+    cy.getBySelLike("delete").first().click();
+    cy.wait(2000);
+  });
+});
+
+// CREATE, ACCEPT, REJECT, and REACT TO TRANSACTIONS
 
 describe("New Transaction", function () {
   const ctx: NewTransactionTestCtx = {};
@@ -133,11 +184,10 @@ describe("New Transaction", function () {
     cy.getBySelLike("new-transaction").click();
     cy.wait("@allUsers");
 
-    cy.toast("Submits New Transaction Payment", {
+    cy.toast("Submit New Transaction", {
       duration: 5000,
       blocking: false,
     });
-
     cy.getBySel("user-list-search-input").type(ctx.contact!.firstName, { force: true });
     cy.wait("@usersSearch");
 
@@ -151,35 +201,12 @@ describe("New Transaction", function () {
       .should("be.visible")
       .and("have.text", "Transaction Submitted!");
 
-    const updatedAccountBalance = Dinero({
-      amount: ctx.user!.balance - parseInt(payment.amount) * 100,
-    }).toFormat();
-
-    cy.toast("Confirm Transaction History", {
+    cy.toast("Confirm Transaction", {
       duration: 3000,
       blocking: false,
     });
 
-    if (isMobile()) {
-      cy.getBySel("sidenav-toggle").click();
-    }
-
-    cy.getBySelLike("user-balance").should("contain", updatedAccountBalance);
-
-    if (isMobile()) {
-      cy.get(".MuiBackdrop-root").click({ force: true });
-    }
-
-    cy.getBySelLike("create-another-transaction").click();
-    cy.getBySel("app-name-logo").find("a").click();
-    cy.getBySelLike("personal-tab").click().should("have.class", "Mui-selected");
-    cy.wait("@personalTransactions");
-
-    cy.getBySel("transaction-list").first().should("contain", payment.description);
-
-    cy.database("find", "users", { id: ctx.contact!.id })
-      .its("balance")
-      .should("equal", ctx.contact!.balance + parseInt(payment.amount) * 100);
+    cy.getBySel("new-transaction-return-to-transactions").click();
   });
 });
 
@@ -213,9 +240,45 @@ describe("Transaction View", function () {
         ctx.transactionRequest = transaction;
       });
     });
+  });
 
-    cy.getBySel("nav-personal-tab").click();
-    cy.wait("@personalTransactions");
+  it("accepts a transaction request", function () {
+    cy.toast("Accept Transaction", {
+      duration: 1000,
+      blocking: true,
+    });
+    cy.visit(`/transaction/${ctx.transactionRequest!.id}`);
+    cy.wait("@getTransaction");
+
+    cy.getBySelLike("accept-request").arrow({
+      duration: 2000,
+      blocking: true,
+      pointAt: "bottomRight",
+      text: "Accept Request",
+      textSize: "5vh",
+    });
+
+    cy.getBySelLike("accept-request").click();
+    cy.wait("@updateTransaction").should("have.property", "status", 204);
+  });
+
+  it("rejects a transaction request", function () {
+    cy.toast("Reject Transaction", {
+      duration: 1000,
+      blocking: true,
+    });
+    cy.visit(`/transaction/${ctx.transactionRequest!.id}`);
+    cy.wait("@getTransaction");
+
+    cy.getBySelLike("reject-request").arrow({
+      duration: 2000,
+      blocking: true,
+      pointAt: "bottomRight",
+      text: "Reject Request",
+      textSize: "5vh",
+    });
+
+    cy.getBySelLike("reject-request").click();
   });
 
   it("comments on a transaction", function () {
@@ -231,9 +294,160 @@ describe("Transaction View", function () {
 
     comments.forEach((comment, index) => {
       cy.getBySelLike("comment-input").type(`${comment}{enter}`);
-      cy.getBySelLike("comments-list").children().eq(index).contains(comment);
+    });
+  });
+});
+
+// TRANSACTION FEED
+
+describe("Transaction Feed", function () {
+  const ctx: TransactionFeedsCtx = {};
+
+  const feedViews = {
+    public: {
+      tab: "public-tab",
+      tabLabel: "everyone",
+      routeAlias: "publicTransactions",
+      service: "publicTransactionService",
+    },
+    contacts: {
+      tab: "contacts-tab",
+      tabLabel: "friends",
+      routeAlias: "contactsTransactions",
+      service: "contactTransactionService",
+    },
+    personal: {
+      tab: "personal-tab",
+      tabLabel: "mine",
+      routeAlias: "personalTransactions",
+      service: "personalTransactionService",
+    },
+  };
+
+  beforeEach(function () {
+    cy.task("db:seed");
+
+    cy.server();
+    cy.route("/transactions*").as(feedViews.personal.routeAlias);
+    cy.route("/transactions/public*").as(feedViews.public.routeAlias);
+    cy.route("/transactions/contacts*").as(feedViews.contacts.routeAlias);
+
+    cy.database("filter", "users").then((users: User[]) => {
+      ctx.user = users[0];
+      ctx.allUsers = users;
+
+      cy.loginByXstate(ctx.user.username);
+    });
+  });
+
+  it("displays transaction feeds", () => {
+    cy.visit("/");
+    cy.toast("Transactions from Everyone", {
+      duration: 1500,
+      blocking: true,
+    });
+    cy.getBySel("nav-contacts-tab").click();
+    cy.toast("Transactions from Friends", {
+      duration: 1500,
+      blocking: true,
+    });
+    cy.getBySel("nav-personal-tab").click();
+    cy.toast("Personal Transactions", {
+      duration: 1500,
+      blocking: true,
+    });
+  });
+});
+
+// USER SETTINGS
+
+describe("User Settings", function () {
+  beforeEach(function () {
+    cy.task("db:seed");
+
+    cy.server();
+    cy.route("PATCH", "/users/*").as("updateUser");
+
+    cy.database("find", "users").then((user: User) => {
+      cy.loginByXstate(user.username);
+    });
+  });
+
+  it("updates first name, last name, email and phone number", function () {
+    cy.getBySel("sidenav-user-settings").arrow({
+      duration: 1500,
+      blocking: true,
+      text: "Update Profile",
+      textSize: "5vh",
     });
 
-    cy.getBySelLike("comments-list").children().should("have.length", comments.length);
+    cy.getBySel("sidenav-user-settings").click();
+
+    cy.toast("Update Profile", {
+      duration: 5000,
+      blocking: false,
+    });
+    cy.getBySelLike("firstName").clear().type("New First Name");
+    cy.getBySelLike("lastName").clear().type("New Last Name");
+    cy.getBySelLike("email").clear().type("email@email.com");
+    cy.getBySelLike("phoneNumber-input").clear().type("6155551212").blur();
+
+    cy.getBySelLike("submit").should("not.be.disabled");
+    cy.getBySelLike("submit").click();
+  });
+});
+
+// NOTIFICATIONS
+
+describe("Notifications", function () {
+  const ctx = {} as NotificationsCtx;
+
+  beforeEach(function () {
+    cy.task("db:seed");
+
+    cy.server();
+    cy.route("GET", "/notifications").as("getNotifications");
+    cy.route("POST", "/transactions").as("createTransaction");
+    cy.route("PATCH", "/notifications/*").as("updateNotification");
+    cy.route("POST", "/comments/*").as("postComment");
+
+    cy.database("filter", "users").then((users: User[]) => {
+      ctx.userA = users[0];
+      ctx.userB = users[1];
+      ctx.userC = users[2];
+    });
+  });
+
+  it("shows notifications", () => {
+    cy.loginByXstate(ctx.userA.username);
+    cy.toast("View Notifications", {
+      duration: 3000,
+      blocking: false,
+    });
+    cy.getBySel("nav-top-notifications-count").click();
+    cy.getBySelLike("notification-mark-read").first().arrow({
+      duration: 1500,
+      blocking: true,
+      text: "Dismiss Notification",
+      textSize: "5vh",
+    });
+
+    cy.getBySelLike("notification-mark-read").first().click({ force: true });
+  });
+
+  it("Logs out", () => {
+    cy.toast("Log Out", {
+      duration: 3000,
+      blocking: false,
+    });
+
+    cy.getBySel("sidenav-signout").arrow({
+      duration: 1500,
+      blocking: true,
+      text: "Logout",
+      textSize: "5vh",
+    });
+
+    cy.getBySel("sidenav-signout").click();
   });
 });
