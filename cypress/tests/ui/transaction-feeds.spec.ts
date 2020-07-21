@@ -386,7 +386,7 @@ describe("Transaction Feed", function () {
 
               const contactsInTransaction = _.intersection(transactionParticipants, contactIds);
               const message = `"${contactsInTransaction}" are contacts of ${ctx.user!.id}`;
-              expect(contactsInTransaction, message).to.not.be.empty;
+              expect(contactsInTransaction, message).should("not.be.empty");
             });
           });
       });
