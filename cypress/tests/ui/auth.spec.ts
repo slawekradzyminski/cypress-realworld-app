@@ -150,7 +150,9 @@ describe("User Sign-up and Login", function () {
 
     cy.getBySel("signin-error")
       .should("be.visible")
-      .and("have.text", "Username or password is invalid");
+      .and("have.text", "Username or password is not valid");
     cy.percySnapshot("Sign In, Invalid Username, Username or Password is Invalid");
   });
+
+  it("is a new test", function () {});
 });
