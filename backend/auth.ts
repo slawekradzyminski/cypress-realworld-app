@@ -50,7 +50,9 @@ passport.serializeUser(function (user: User, done) {
   console.log("serialize user");
   console.log(user);
   console.log("-----------------------------");
-  done(null, user.id);
+
+  // @ts-ignore
+  done(null, process.env.REACT_APP_SAML ? user.uid : user.id);
 });
 
 passport.deserializeUser(function (id: string, done) {
