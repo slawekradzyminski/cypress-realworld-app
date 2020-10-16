@@ -1,10 +1,12 @@
 import bcrypt from "bcryptjs";
+import fs from "fs";
 import passport from "passport";
 import express, { Request, Response } from "express";
 import { User } from "../src/models/user";
 import { getUserBy, getUserById } from "./database";
 
 const LocalStrategy = require("passport-local").Strategy;
+const saml = require("passport-saml");
 const router = express.Router();
 
 // configure passport for local strategy
@@ -26,16 +28,70 @@ passport.use(
   })
 );
 
+const samlStrategy = new saml.Strategy(
+  {
+    callbackUrl: "http://localhost:3000/loginSaml/callback",
+    entryPoint: "http://localhost:8080/simplesaml/saml2/idp/SSOService.php",
+    issuer: "saml-poc",
+    identifierFormat: null,
+    decryptionPvk: fs.readFileSync(__dirname + "/certs/key.pem", "utf8"),
+    privateCert: fs.readFileSync(__dirname + "/certs/key.pem", "utf8"),
+    validateInResponseTo: false,
+    disableRequestedAuthnContext: true,
+  },
+  function (profile: any, done: Function) {
+    return done(null, profile);
+  }
+);
+passport.use("samlStrategy", samlStrategy);
+
 passport.serializeUser(function (user: User, done) {
+  console.log("-----------------------------");
+  console.log("serialize user");
+  console.log(user);
+  console.log("-----------------------------");
   done(null, user.id);
 });
 
 passport.deserializeUser(function (id: string, done) {
+  console.log("-----------------------------");
+  console.log("deserialize user");
+  console.log("ID:", id);
   const user = getUserById(id);
+  console.log("User:", user);
+  console.log("-----------------------------");
   done(null, user);
 });
 
 // authentication routes
+
+router.get(
+  "/loginSaml",
+  function (req, res, next) {
+    console.log("-----------------------------");
+    console.log("/Start loginSaml handler");
+    next();
+  },
+  passport.authenticate("samlStrategy")
+);
+
+router.post(
+  "/loginSaml/callback",
+  function (req, res, next) {
+    console.log("-----------------------------");
+    console.log("/Start loginSaml callback ");
+    next();
+  },
+  passport.authenticate("samlStrategy"),
+  function (req, res) {
+    console.log("-----------------------------");
+    console.log("loginSaml call back dumps");
+    console.log(req.user);
+    console.log("-----------------------------");
+    res.send("Log in Saml Callback Success");
+  }
+);
+
 router.post("/login", passport.authenticate("local"), (req: Request, res: Response): void => {
   if (req.body.remember) {
     req.session!.cookie.maxAge = 24 * 60 * 60 * 1000 * 30; // Expire in 30 days

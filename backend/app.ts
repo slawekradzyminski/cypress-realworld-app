@@ -4,6 +4,7 @@ import logger from "morgan";
 import passport from "passport";
 import session from "express-session";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import paginate from "express-paginate";
 
@@ -35,6 +36,7 @@ if (global.__coverage__) {
 
 app.use(cors(corsOption));
 app.use(logger("dev"));
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -42,7 +44,7 @@ app.use(
   session({
     secret: "session secret",
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: process.env.REACT_APP_SAML ? true : false,
     unset: "destroy",
   })
 );

@@ -74,6 +74,21 @@
       "balance": 75369,
       "createdAt": "2020-02-11T21:26:46.510Z",
       "modifiedAt": "2020-05-21T15:15:33.944Z"
+    },
+    {
+      "id": "1",
+      "uuid": "9383f84e-b511-44c5-a835-5ece1d781fa8",
+      "firstName": "Test",
+      "lastName": "SAML User",
+      "username": "user1",
+      "password": "",
+      "email": "user1@example.com",
+      "phoneNumber": "425-315-9582",
+      "avatar": "https://avatars.dicebear.com/api/human/1.svg",
+      "defaultPrivacyLevel": "public",
+      "balance": 15137,
+      "createdAt": "2020-10-12T23:47:05.637Z",
+      "modifiedAt": "2020-10-15T11:02:22.857Z"
     }
   ],
   "contacts": [
