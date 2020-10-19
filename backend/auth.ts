@@ -5,8 +5,8 @@ import express, { Request, Response } from "express";
 import { User } from "../src/models/user";
 import { getUserBy, getUserById } from "./database";
 
-const decryptionCert = readFileSync(__dirname + "/certs/key.pem", "utf8");
-const signingCert = readFileSync(__dirname + "/certs/cert.pem", "utf8");
+const decryptionCert = readFileSync(__dirname + "/certs/key.pem", "utf8").toString();
+const signingCert = readFileSync(__dirname + "/certs/cert.pem", "utf8").toString();
 
 const LocalStrategy = require("passport-local").Strategy;
 const saml = require("passport-saml");

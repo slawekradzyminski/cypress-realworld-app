@@ -1,4 +1,5 @@
-import { User } from "../../../src/models";
+import url from "url";
+import qs from "qs";
 import { isMobile } from "../../support/utils";
 
 describe("User Sign-up and Login", function () {
@@ -8,7 +9,24 @@ describe("User Sign-up and Login", function () {
     cy.server();
     cy.route("POST", "/bankAccounts").as("createBankAccount");
 
-    cy.loginBySamlApi(Cypress.env("auth0_username"), Cypress.env("auth0_password"));
+    //cy.loginBySamlApi(Cypress.env("auth0_username"), Cypress.env("auth0_password"));
+    cy.request(
+      "http://localhost:8080/simplesaml/saml2/idp/SSOService.php?spentityid=saml-poc"
+    ).then((resp) => {
+      //cy.log(resp);
+      const redirect = url.parse(resp.redirects[0].split(" ")[1], { parseQueryString: true });
+      cy.log(redirect);
+
+      cy.log(redirect.query);
+      cy.request("POST", `${redirect.protocol}//${redirect.host}/${redirect.pathname}`, {
+        username: "user1",
+        password: "user1pass",
+        // @ts-ignore
+        ...redirect.query,
+      }).then((resp) => {
+        cy.log("AUTHENTICATED");
+      });
+    });
   });
   it("should allow a visitor to login, onboard and logout", function () {
     cy.contains("Get Started").should("be.visible");

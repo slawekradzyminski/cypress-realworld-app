@@ -13,14 +13,15 @@ const serviceProviderOptions = {
   entity_id: "http://localhost:3000/samlMetadata",
   private_key: readFileSync(__dirname + "/../../backend/certs/key.pem").toString(),
   certificate: readFileSync(__dirname + "/../../backend/certs/cert.pem").toString(),
-  assert_endpoint: "http://localhost:3000/loginSaml",
+  assert_endpoint: "http://localhost:8080/simplesaml/saml2/idp/SSOService.php",
   force_authn: true,
   auth_context: { comparison: "exact", class_refs: ["urn:oasis:names:tc:SAML:1.0:am:password"] },
   nameid_format: "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
-  sign_get_request: false,
+  sign_get_request: true,
   allow_unencrypted_assertion: true,
 };
 
+// simplesaml/saml2/idp/SSOService.php?spentityid=urn:mace:feide.no:someservice
 const identityProviderOptions = {
   sso_login_url: "http://localhost:8080/simplesaml/saml2/idp/SSOService.php",
   sso_logout_url: "http://localhost:8080/simplesaml/saml2/idp/SingleLogoutService.php",
@@ -76,6 +77,26 @@ export default (on, config) => {
     //sp.post_assert(idp, {}, callback);
   };
 
+  //http://localhost:8080/simplesaml/saml2/idp/SSOService.php?spentityid=saml-poc
+  //  const authEndpoint = "http://localhost:8080/simplesaml/module.php/core/loginuserpass.php";
+  const loginViaSamlIdPFirstFlow = async ({ username, password }) => {
+    const idpAuthUrl =
+      "http://localhost:8080/simplesaml/saml2/idp/SSOService.php?spentityid=saml-poc";
+
+    const { data } = await axios.get(idpAuthUrl);
+    cy.log("idp data", data);
+
+    return true;
+    /*
+    try {
+      const { data } = await axios.post(authEndpoint, { username, password });
+      console.log("login response", data);
+    } catch (error) {
+      console.log(error);
+    }
+    */
+  };
+
   on("task", {
     percyHealthCheck,
     async "db:seed"() {
@@ -92,7 +113,7 @@ export default (on, config) => {
       return queryDatabase(queryPayload, (data, attrs) => _.find(data.results, attrs));
     },
     loginBySaml({ username, password }) {
-      return loginViaSaml({ username, password });
+      return loginViaSamlIdPFirstFlow({ username, password });
     },
   });
 
