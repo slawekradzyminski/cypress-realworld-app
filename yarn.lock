@@ -3181,6 +3181,11 @@
     "@types/prop-types" "*"
     csstype "^3.0.2"
 
+"@types/saml2-js@^1.6.8":
+  version "1.6.8"
+  resolved "https://registry.yarnpkg.com/@types/saml2-js/-/saml2-js-1.6.8.tgz#9f04243de48176ab4397b63ac427268b87e0cf53"
+  integrity sha512-7NLPL5om+HDvpsw7gHLO+MfZdMCzlCsY0oE5aZi8tfRGTuSS3mtYk19Cg7C2n1v0yHbb9rnkFOhLKxjlQaHheg==
+
 "@types/serve-static@*":
   version "1.13.4"
   resolved "https://registry.yarnpkg.com/@types/serve-static/-/serve-static-1.13.4.tgz#6662a93583e5a6cabca1b23592eb91e12fa80e7c"
