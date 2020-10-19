@@ -298,3 +298,20 @@ Cypress.Commands.add("database", (operation, entity, query, logTask = false) => 
     return data;
   });
 });
+
+//Cypress.Commands.add("loginBySaml", (username, password = Cypress.env("defaultPassword")) => {
+Cypress.Commands.add("loginBySamlApi", (username = "user1", password = "user1pass") => {
+  const log = Cypress.log({
+    name: "loginBySaml",
+    displayName: "LOGIN",
+    message: [`🔐 Authenticating | ${username}`],
+    // @ts-ignore
+    autoEnd: false,
+  });
+
+  return cy.task("loginBySaml", { username, password }).then((data) => {
+    log.snapshot();
+    log.end();
+    return data;
+  });
+});

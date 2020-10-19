@@ -1,9 +1,12 @@
 import bcrypt from "bcryptjs";
-import fs from "fs";
+import { readFileSync } from "fs";
 import passport from "passport";
 import express, { Request, Response } from "express";
 import { User } from "../src/models/user";
 import { getUserBy, getUserById } from "./database";
+
+const decryptionCert = readFileSync(__dirname + "/certs/key.pem", "utf8");
+const signingCert = readFileSync(__dirname + "/certs/cert.pem", "utf8");
 
 const LocalStrategy = require("passport-local").Strategy;
 const saml = require("passport-saml");
@@ -34,8 +37,8 @@ const samlStrategy = new saml.Strategy(
     entryPoint: "http://localhost:8080/simplesaml/saml2/idp/SSOService.php",
     issuer: "saml-poc",
     identifierFormat: null,
-    decryptionPvk: fs.readFileSync(__dirname + "/certs/key.pem", "utf8"),
-    privateCert: fs.readFileSync(__dirname + "/certs/key.pem", "utf8"),
+    decryptionPvk: decryptionCert,
+    privateCert: signingCert,
     validateInResponseTo: false,
     disableRequestedAuthnContext: true,
   },
@@ -66,6 +69,11 @@ passport.deserializeUser(function (id: string, done) {
 });
 
 // authentication routes
+router.get("/samlMetadata", function (req, res) {
+  const metaData = samlStrategy.generateServiceProviderMetadata(decryptionCert, signingCert);
+  res.set("Content-Type", "application/xml");
+  res.send(metaData);
+});
 
 router.get(
   "/loginSaml",
