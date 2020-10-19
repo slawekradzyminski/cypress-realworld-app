@@ -1,6 +1,7 @@
 // @ts-check
 ///<reference path="../global.d.ts" />
 
+import url from "url";
 import { pick } from "lodash/fp";
 import { format as formatDate } from "date-fns";
 import { isMobile } from "./utils";
@@ -299,8 +300,7 @@ Cypress.Commands.add("database", (operation, entity, query, logTask = false) => 
   });
 });
 
-//Cypress.Commands.add("loginBySaml", (username, password = Cypress.env("defaultPassword")) => {
-Cypress.Commands.add("loginBySamlApi", (username = "user1", password = "user1pass") => {
+Cypress.Commands.add("loginBySaml", (username, password) => {
   const log = Cypress.log({
     name: "loginBySaml",
     displayName: "LOGIN",
@@ -309,9 +309,29 @@ Cypress.Commands.add("loginBySamlApi", (username = "user1", password = "user1pas
     autoEnd: false,
   });
 
-  return cy.task("loginBySaml", { username, password }).then((data) => {
-    log.snapshot();
-    log.end();
-    return data;
-  });
+  cy.request("http://localhost:8080/simplesaml/saml2/idp/SSOService.php?spentityid=saml-poc").then(
+    (resp) => {
+      //cy.log(resp);
+      const redirect = url.parse(resp.redirects[0].split(" ")[1], { parseQueryString: true });
+      cy.log(redirect);
+
+      cy.log(redirect.query);
+      cy.request({
+        method: "POST",
+        url: `${redirect.host}${redirect.pathname}`,
+        form: true,
+        body: {
+          username,
+          password,
+          // @ts-ignore
+          ...redirect.query,
+        },
+      }).then((resp) => {
+        cy.log("AUTHENTICATED");
+        log.snapshot();
+        log.end();
+        cy.visit("/");
+      });
+    }
+  );
 });

@@ -69,11 +69,6 @@ passport.deserializeUser(function (id: string, done) {
 });
 
 // authentication routes
-router.get("/samlMetadata", function (req, res) {
-  const metaData = samlStrategy.generateServiceProviderMetadata(decryptionCert, signingCert);
-  res.set("Content-Type", "application/xml");
-  res.send(metaData);
-});
 
 router.get(
   "/loginSaml",
