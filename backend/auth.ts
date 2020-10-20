@@ -96,8 +96,8 @@ router.post(
     console.log("loginSaml call back dumps");
     console.log(req.user);
     console.log("-----------------------------");
-    res.send("Login Saml Successful");
-    /*res.send({
+    //res.send("Login Saml Successful");
+    res.send({
       user: {
         // @ts-ignore
         uid: req.user?.uid,
@@ -105,7 +105,7 @@ router.post(
         // @ts-ignore
         eduPersonAffiliation: req.user?.eduPersonAffiliation,
       },
-    });*/
+    });
   }
 );
 

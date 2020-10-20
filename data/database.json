@@ -89,6 +89,21 @@
       "balance": 15137,
       "createdAt": "2020-10-12T23:47:05.637Z",
       "modifiedAt": "2020-10-15T11:02:22.857Z"
+    },
+    {
+      "id": "3",
+      "uuid": "9383f84e-b511-44c5-a835-5ece1d781fa8",
+      "firstName": "Kevin",
+      "lastName": "Old",
+      "username": "kevinold@gmail.com",
+      "password": "",
+      "email": "kevinold@gmail.com",
+      "phoneNumber": "425-315-9582",
+      "avatar": "https://avatars.dicebear.com/api/human/1.svg",
+      "defaultPrivacyLevel": "public",
+      "balance": 15137,
+      "createdAt": "2020-10-12T23:47:05.637Z",
+      "modifiedAt": "2020-10-15T11:02:22.857Z"
     }
   ],
   "contacts": [
