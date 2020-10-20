@@ -330,6 +330,7 @@ Cypress.Commands.add("loginBySamlApi", (username, password) => {
     }).then((respA) => {
       cy.log("AUTHENTICATED");
       cy.log(respA);
+
       /*cy.request("http://localhost:3000/loginSaml").then((resp) => {
           cy.log(resp);
           const redirect = url.parse(resp.redirects[0].split(" ")[1], { parseQueryString: true });
