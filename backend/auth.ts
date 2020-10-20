@@ -5,9 +5,6 @@ import express, { Request, Response } from "express";
 import { User } from "../src/models/user";
 import { getUserBy, getUserById } from "./database";
 
-const decryptionCert = readFileSync(__dirname + "/certs/key.pem", "utf8").toString();
-const signingCert = readFileSync(__dirname + "/certs/cert.pem", "utf8").toString();
-
 const LocalStrategy = require("passport-local").Strategy;
 const saml = require("passport-saml");
 const router = express.Router();
@@ -37,8 +34,8 @@ const samlStrategy = new saml.Strategy(
     entryPoint: "http://localhost:8080/simplesaml/saml2/idp/SSOService.php",
     issuer: "saml-poc",
     identifierFormat: null,
-    decryptionPvk: decryptionCert,
-    privateCert: signingCert,
+    decryptionPvk: readFileSync(__dirname + "/certs/key.pem", "utf8"),
+    privateCert: readFileSync(__dirname + "/certs/key.pem", "utf8"),
     validateInResponseTo: false,
     disableRequestedAuthnContext: true,
   },
@@ -93,7 +90,15 @@ router.post(
     console.log("loginSaml call back dumps");
     console.log(req.user);
     console.log("-----------------------------");
-    res.send("Log in Saml Callback Success");
+    res.send({
+      user: {
+        // @ts-ignore
+        uid: req.user?.uid,
+        email: req.user?.email,
+        // @ts-ignore
+        eduPersonAffiliation: req.user?.eduPersonAffiliation,
+      },
+    });
   }
 );
 

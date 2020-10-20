@@ -300,7 +300,7 @@ Cypress.Commands.add("database", (operation, entity, query, logTask = false) => 
   });
 });
 
-Cypress.Commands.add("loginBySaml", (username, password) => {
+Cypress.Commands.add("loginBySamlApi", (username, password) => {
   const log = Cypress.log({
     name: "loginBySaml",
     displayName: "LOGIN",
@@ -309,29 +309,43 @@ Cypress.Commands.add("loginBySaml", (username, password) => {
     autoEnd: false,
   });
 
-  cy.request("http://localhost:8080/simplesaml/saml2/idp/SSOService.php?spentityid=saml-poc").then(
-    (resp) => {
-      //cy.log(resp);
-      const redirect = url.parse(resp.redirects[0].split(" ")[1], { parseQueryString: true });
-      cy.log(redirect);
+  const idpUrl = "http://localhost:8080/simplesaml/saml2/idp/SSOService.php?spentityid=saml-poc";
 
-      cy.log(redirect.query);
-      cy.request({
-        method: "POST",
-        url: `${redirect.host}${redirect.pathname}`,
-        form: true,
-        body: {
-          username,
-          password,
-          // @ts-ignore
-          ...redirect.query,
-        },
-      }).then((resp) => {
-        cy.log("AUTHENTICATED");
-        log.snapshot();
-        log.end();
-        cy.visit("/");
-      });
-    }
-  );
+  cy.request(idpUrl).then((resp) => {
+    //cy.log(resp);
+    const redirect = url.parse(resp.redirects[0].split(" ")[1], { parseQueryString: true });
+    cy.log(redirect);
+
+    cy.log(redirect.query);
+    cy.request({
+      method: "POST",
+      url: `${redirect.host}${redirect.pathname}`,
+      form: true,
+      body: {
+        username,
+        password,
+        // @ts-ignore
+        ...redirect.query,
+      },
+    }).then((respA) => {
+      cy.log("AUTHENTICATED");
+      cy.log(respA);
+      /*cy.request("http://localhost:3000/loginSaml").then((resp) => {
+          cy.log(resp);
+          const redirect = url.parse(resp.redirects[0].split(" ")[1], { parseQueryString: true });
+          cy.log(redirect);
+          cy.request(redirect.href).then((respRedirect) => {
+            cy.log(respRedirect);
+            //cy.request("http://localhost:3000/checkAuth").then((respAuth) => {
+            //  cy.log(respAuth);
+            //});
+          });
+        });*/
+      //cy.window({ log: false }).then((win) => win.authService.send("SAML", { user: re }));
+
+      log.snapshot();
+      log.end();
+      cy.visit("/");
+    });
+  });
 });

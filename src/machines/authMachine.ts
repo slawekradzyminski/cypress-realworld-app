@@ -8,6 +8,7 @@ export interface AuthMachineSchema {
   states: {
     unauthorized: {};
     signup: {};
+    saml: {};
     loading: {};
     updating: {};
     logout: {};
@@ -21,6 +22,7 @@ export type AuthMachineEvents =
   | { type: "LOGOUT" }
   | { type: "UPDATE" }
   | { type: "REFRESH" }
+  | { type: "SAML" }
   | { type: "SIGNUP" };
 
 export interface AuthMachineContext {
@@ -42,6 +44,7 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
         on: {
           LOGIN: "loading",
           SIGNUP: "signup",
+          SAML: "saml",
         },
       },
       signup: {
@@ -49,6 +52,16 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
           src: "performSignup",
           onDone: { target: "unauthorized", actions: "onSuccess" },
           onError: { target: "unauthorized", actions: "onError" },
+        },
+      },
+      saml: {
+        invoke: {
+          src: "getSamlUserProfile",
+          onDone: { target: "authorized", actions: "setUserProfile" },
+          onError: { target: "unauthorized", actions: "onError" },
+        },
+        on: {
+          LOGOUT: "logout",
         },
       },
       loading: {
@@ -114,6 +127,15 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
       getUserProfile: async (ctx, event) => {
         const resp = await httpClient.get(`http://localhost:3001/checkAuth`);
         return resp.data;
+      },
+      getSamlUserProfile: /* istanbul ignore next */ (ctx, event: any) => {
+        // Map Saml User fields to our User Model
+        const user = {
+          id: event.user.uid,
+          email: event.user.email,
+        };
+
+        return Promise.resolve({ user });
       },
       updateProfile: async (ctx, event: any) => {
         const payload = omit("type", event);
