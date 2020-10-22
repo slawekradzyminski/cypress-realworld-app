@@ -28,22 +28,13 @@ passport.use(
   })
 );
 
+//${org.externalKey} is given by okta
 const samlStrategy = new saml.Strategy(
   {
-    /*callbackUrl: "http://localhost:3000/loginSaml/callback",
-    entryPoint: "http://localhost:8080/simplesaml/saml2/idp/SSOService.php",
-    issuer: "saml-poc",
-    identifierFormat: null,
-    decryptionPvk: readFileSync(__dirname + "/certs/key.pem", "utf8"),
-    validateInResponseTo: false,
-    disableRequestedAuthnContext: true,*/
     path: "/loginSaml/callback",
-    //${org.externalKey} is given by okta
     entryPoint:
       "https://dev-483770.okta.com/app/cypressdev483770_cypressrwasamltest_1/exk17luvzoFAR6We94x7/sso/saml",
     issuer: "http://www.okta.com/exk17luvzoFAR6We94x7",
-    //cert: readFileSync(__dirname + "/certs/okta.crt", "utf8"),
-    cert: readFileSync(__dirname + "/certs/idp_key.pem", "utf8"),
   },
   function (profile: any, done: Function) {
     return done(null, profile);

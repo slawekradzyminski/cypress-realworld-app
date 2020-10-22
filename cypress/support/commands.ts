@@ -309,6 +309,57 @@ Cypress.Commands.add("loginBySamlApi", (username, password) => {
     autoEnd: false,
   });
 
+  const serviceProviderUrl = "http://localhost:3000/loginSaml";
+  const idpUrl = "http://localhost:8080/simplesaml/saml2/idp/SSOService.php?spentityid=saml-poc";
+
+  cy.request(idpUrl).then((resp) => {
+    //cy.log(resp);
+    const redirect = url.parse(resp.redirects[0].split(" ")[1], { parseQueryString: true });
+    cy.log(redirect);
+
+    cy.log(redirect.query);
+    cy.request({
+      method: "POST",
+      url: `${redirect.host}${redirect.pathname}`,
+      form: true,
+      body: {
+        username: "kevinold@gmail.com",
+        password: "secret123",
+        // @ts-ignore
+        ...redirect.query,
+      },
+    }).then((respA) => {
+      cy.log("AUTHENTICATED");
+      cy.log(respA);
+      // GET to serviceProviderUrl
+      cy.request(serviceProviderUrl).then((resp) => {
+        // Login to Okta via authn
+        // POST https://dev-483770.okta.com/api/v1/authn
+        const authN = "https://dev-483770.okta.com/api/v1/authn";
+        cy.request("POST", authN, {
+          username: "kevinold@gmail.com",
+          password: "Secret123$",
+        }).then((authN) => {
+          // Should be redirected to idP from Okta
+          cy.request(serviceProviderUrl).then((idpResp) => {});
+        });
+      });
+    });
+  });
+
+  log.snapshot();
+  log.end();
+});
+
+Cypress.Commands.add("loginBySamlApiOld", (username, password) => {
+  const log = Cypress.log({
+    name: "loginBySaml",
+    displayName: "LOGIN",
+    message: [`🔐 Authenticating | ${username}`],
+    // @ts-ignore
+    autoEnd: false,
+  });
+
   const idpUrl = "http://localhost:8080/simplesaml/saml2/idp/SSOService.php?spentityid=saml-poc";
 
   cy.request(idpUrl).then((resp) => {
