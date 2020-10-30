@@ -2,7 +2,7 @@
 ///<reference path="../global.d.ts" />
 
 import url from "url";
-import { pick } from "lodash/fp";
+import { pick, filter } from "lodash/fp";
 import { format as formatDate } from "date-fns";
 import { isMobile } from "./utils";
 
@@ -300,7 +300,36 @@ Cypress.Commands.add("database", (operation, entity, query, logTask = false) => 
   });
 });
 
+Cypress.Commands.add("loginBySamlUI", (username, password) => {
+  cy.clearCookies({ domain: null });
+  const log = Cypress.log({
+    name: "loginBySamlUI",
+    displayName: "LOGIN",
+    message: [`🔐 Authenticating | ${username}`],
+    // @ts-ignore
+    autoEnd: false,
+  });
+  cy.visit("https://dev-483770.okta.com");
+
+  cy.get('[data-se="o-form-input-username"]').type("kevinold@gmail.com");
+  cy.get('[data-se="o-form-input-password"]').type("S3cret1234$$");
+  cy.get("#okta-signin-submit").click();
+  cy.getCookies({ domain: null }).then((cookies) => {
+    console.log("first: ", cookies);
+    cookies.forEach((cookie) => {
+      cy.setCookie(cookie.name, cookie.value, cookie);
+    });
+  });
+
+  cy.get(".app-button")
+    .invoke("attr", "href")
+    .then((href) => {
+      cy.visit(href);
+    });
+});
+
 Cypress.Commands.add("loginBySamlApi", (username, password) => {
+  cy.clearCookies({ domain: null });
   const log = Cypress.log({
     name: "loginBySaml",
     displayName: "LOGIN",
@@ -330,6 +359,16 @@ Cypress.Commands.add("loginBySamlApi", (username, password) => {
       },
     }).then((respA) => {
       cy.log("AUTHENTICATED");
+      cy.getCookies({ domain: null }).then((cookies) => {
+        console.log("first: ", cookies);
+        cookies.forEach((cookie) => {
+          cy.setCookie(cookie.name, cookie.value, cookie);
+        });
+        /*const cookiesToKeep = filter((o) => {
+          return o.name === "PHPSESSIDIDP";
+        }, cookies);
+        console.log("first keep: ", cookiesToKeep);*/
+      });
       cy.log(respA);
       // GET to serviceProviderUrl
       cy.request(serviceProviderUrl).then((resp) => {
@@ -340,8 +379,20 @@ Cypress.Commands.add("loginBySamlApi", (username, password) => {
           username: "kevinold@gmail.com",
           password: "Secret123$",
         }).then((authN) => {
+          cy.getCookies({ domain: null }).then((cookies) => {
+            console.log("second: ", cookies);
+            cookies.forEach((cookie) => {
+              cy.setCookie(cookie.name, cookie.value, cookie);
+            });
+          });
           // Should be redirected to idP from Okta
-          cy.request(serviceProviderUrl).then((idpResp) => {});
+          cy.request(serviceProviderUrl).then((idpResp) => {
+            console.log(idpResp);
+            cy.getCookies({ domain: null }).then((cookies) => {
+              console.log("all: ", cookies);
+            });
+            cy.visit("/");
+          });
         });
       });
     });
