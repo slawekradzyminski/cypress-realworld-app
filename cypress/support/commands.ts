@@ -330,6 +330,7 @@ Cypress.Commands.add("loginBySamlUI", (username, password) => {
 const idpUrl = "http://localhost:8080/simplesaml/saml2/idp/SSOService.php?spentityid=saml-poc";
 const authN = "https://dev-483770.okta.com/api/v1/authn";
 
+const serviceProviderUrl = "http://localhost:3000/loginSaml";
 Cypress.Commands.add("loginBySamlApi", (username, password) => {
   cy.clearCookies({ domain: null });
   const log = Cypress.log({
@@ -340,7 +341,6 @@ Cypress.Commands.add("loginBySamlApi", (username, password) => {
     autoEnd: false,
   });
 
-  const serviceProviderUrl = "http://localhost:3000/loginSaml";
   // Visit Service Provider (Node + passport + passport-saml)
   cy.request({ url: serviceProviderUrl }).then((resp) => {
     cy.log(resp);
