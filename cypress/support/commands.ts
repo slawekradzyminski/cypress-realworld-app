@@ -327,6 +327,8 @@ Cypress.Commands.add("loginBySamlUI", (username, password) => {
       cy.visit(href);
     });
 });
+const idpUrl = "http://localhost:8080/simplesaml/saml2/idp/SSOService.php?spentityid=saml-poc";
+const authN = "https://dev-483770.okta.com/api/v1/authn";
 
 Cypress.Commands.add("loginBySamlApi", (username, password) => {
   cy.clearCookies({ domain: null });
@@ -339,9 +341,51 @@ Cypress.Commands.add("loginBySamlApi", (username, password) => {
   });
 
   const serviceProviderUrl = "http://localhost:3000/loginSaml";
+  // Visit Service Provider (Node + passport + passport-saml)
+  cy.request({ url: serviceProviderUrl }).then((resp) => {
+    cy.log(resp);
+  });
+
+  /*
+  cy.request({ url: serviceProviderUrl, followRedirect: false }).then((resp) => {
+    cy.log(resp);
+    const samlRequestUrl = resp.redirectedToUrl;
+  });
+  */
+
+  /*
+  cy.request("POST", authN, {
+    username: "kevinold@gmail.com",
+    password: "S3cret1234$$",
+    //stateToken: "00BClWr4T-mnIqPV8dHkOQlwEIXxB4LLSfBVt7BxsM",
+  }).then((authN) => {
+    cy.getCookies({ domain: null }).then((cookies) => {
+      console.log("all cookies: ", cookies);
+      cookies.forEach((cookie) => {
+        cy.setCookie(cookie.name, cookie.value, cookie);
+      });
+    });
+  });
+  */
+});
+
+//
+//
+//
+Cypress.Commands.add("loginBySamlApiFull", (username, password) => {
+  cy.clearCookies({ domain: null });
+  const log = Cypress.log({
+    name: "loginBySaml",
+    displayName: "LOGIN",
+    message: [`🔐 Authenticating | ${username}`],
+    // @ts-ignore
+    autoEnd: false,
+  });
+
+  const serviceProviderUrl = "http://localhost:3000/loginSaml";
   const idpUrl = "http://localhost:8080/simplesaml/saml2/idp/SSOService.php?spentityid=saml-poc";
 
-  cy.request(idpUrl).then((resp) => {
+  cy.request(serviceProviderUrl).then((resp) => {
     //cy.log(resp);
     const redirect = url.parse(resp.redirects[0].split(" ")[1], { parseQueryString: true });
     cy.log(redirect);
