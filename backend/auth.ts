@@ -33,8 +33,8 @@ const samlStrategy = new saml.Strategy(
   {
     path: "/loginSaml/callback",
     entryPoint:
-      "https://dev-483770.okta.com/app/cypressdev483770_cypressrwasamltest_1/exk17luvzoFAR6We94x7/sso/saml",
-    issuer: "http://www.okta.com/exk17luvzoFAR6We94x7",
+      "https://cypress-dx.okta.com/app/cypressorg3922345_cypressrwatest_1/exkke3yfhH8IQNWaK5d5/sso/saml",
+    issuer: "http://www.okta.com/exkke3yfhH8IQNWaK5d5",
   },
   function (profile: any, done: Function) {
     return done(null, profile);
