@@ -338,14 +338,6 @@ Cypress.Commands.add("storeAllCookies", () => {
   });
 });
 
-const serviceProviderUrl = "http://localhost:3000/loginSaml";
-const identityProviderSSOUrl =
-  "http://localhost:8080/simplesaml/saml2/idp/SSOService.php?spentityid=saml-poc";
-const oktaAuthnUrl = "https://cypress-dx.okta.com/api/v1/authn";
-const oktaSessionsUrl = "https://cypress-dx.okta.com/api/v1/sessions?additionalFields=cookieToken";
-const oktaAppLink =
-  "https://login.cypress-dx.com/home/cypressorg3922345_cypressrwatest_1/0oake3yg7jI9KfHuN5d5/alnkhkp7ZcISjNKwP5d5";
-
 // Service Provider Initiated Flow
 // 1. Visit Service Provider (follow redirects)
 // 2. Programmatically authenticate with Okta Authn endpoint (store cookies)
@@ -354,84 +346,84 @@ const oktaAppLink =
 // 5. Post SAMLResponse to Identity Provider SSO Endpoint
 // 6. Programmatically Authenticate with Identity Provider (store cookies) (provider specific)
 // 7. Post SAMLResponse to Service Provider Callback
-Cypress.Commands.add("loginBySamlApi", (username, password) => {
+Cypress.Commands.add("loginBySamlApi", () => {
   cy.clearCookies({ domain: null });
   const log = Cypress.log({
     name: "loginBySaml",
     displayName: "LOGIN",
-    message: [`🔐 Authenticating | ${username}`],
+    message: [`🔐 Authenticating | ${Cypress.env("oktaAuthUsername")}`],
     // @ts-ignore
     autoEnd: false,
   });
 
   // 1. Visit Service Provider (follow redirects)
-  cy.request({ url: serviceProviderUrl }).then((resp) => {
+  cy.request(Cypress.env("samlSpLoginUrl")).then((resp) => {
     // 2. Programmatically authenticate with Okta Authn (store cookies)
-    cy.request("POST", oktaAuthnUrl, {
-      username: "kevinold@gmail.com",
-      password: "S3cret1234$$",
+    cy.request("POST", Cypress.env("samlOktaAuthn"), {
+      username: Cypress.env("oktaAuthUsername"),
+      password: Cypress.env("oktaAuthPassword"),
     }).then((authN) => {
       cy.log("AUTHENTICATED: Okta");
 
       // 3. Create Okta Session with sessionToken
       // https://developer.okta.com/docs/reference/api/sessions/#create-session-with-session-token
-      cy.request("POST", oktaSessionsUrl, { sessionToken: authN.body.sessionToken }).then(
-        (resp) => {
-          // 4. Visit Okta RWA App with "onetimetoken" parameter with cookieToken to obtain SAMLResponse for Identity Provider
-          cy.request({
-            method: "GET",
-            url: oktaAppLink,
-            qs: { onetimetoken: resp.body.cookieToken },
-          }).then((samlResp) => {
-            // Parse SAMLResponse from HTML returned by Okta
-            const $ = cheerio.load(samlResp.body);
-            const SAMLResponse = $("form input[name=SAMLResponse]").attr("value");
+      cy.request("POST", Cypress.env("samlOktaSessionsApi"), {
+        sessionToken: authN.body.sessionToken,
+      }).then((resp) => {
+        // 4. Visit Okta RWA App with "onetimetoken" parameter with cookieToken to obtain SAMLResponse for Identity Provider
+        cy.request({
+          method: "GET",
+          url: Cypress.env("samlOktaApp"),
+          qs: { onetimetoken: resp.body.cookieToken },
+        }).then((samlResp) => {
+          // Parse SAMLResponse from HTML returned by Okta
+          const $ = cheerio.load(samlResp.body);
+          const SAMLResponse = $("form input[name=SAMLResponse]").attr("value");
 
-            // 5. Post SAMLResponse to Identity Provider SSO Endpoint
+          // 5. Post SAMLResponse to Identity Provider SSO Endpoint
+          cy.request({
+            method: "POST",
+            url: Cypress.env("samlIdpSsoUrl"),
+            body: { SAMLResponse },
+          }).then((idpResp) => {
+            // Parse redirect for AuthState, used in identity provider programatic login (provider specific)
+            const redirect = url.parse(idpResp.redirects[0].split(" ")[1], {
+              parseQueryString: true,
+            });
+
+            // 6. Programmatically Authenticate with Identity Provider (store cookies) (provider specific)
             cy.request({
               method: "POST",
-              url: identityProviderSSOUrl,
-              body: { SAMLResponse },
+              url: `${redirect.host}${redirect.pathname}?`,
+              form: true,
+              body: {
+                username: Cypress.env("idpAuthUsername"),
+                password: Cypress.env("idpAuthPassword"),
+                // @ts-ignore
+                ...redirect.query,
+              },
             }).then((idpResp) => {
-              // Parse redirect for AuthState, used in identity provider programatic login (provider specific)
-              const redirect = url.parse(idpResp.redirects[0].split(" ")[1], {
-                parseQueryString: true,
-              });
+              cy.log("AUTHENTICATED: Identity Provider");
+              cy.storeAllCookies();
 
-              // 6. Programmatically Authenticate with Identity Provider (store cookies) (provider specific)
+              // Parse SAMLResponse from HTML returned by Identity Provider
+              const $ = cheerio.load(idpResp.body);
+              const SAMLResponse = $("form input[name=SAMLResponse]").attr("value");
+
+              // 7. Post SAMLResponse to Service Provider Callback
               cy.request({
                 method: "POST",
-                url: `${redirect.host}${redirect.pathname}?`,
-                form: true,
-                body: {
-                  username: "kevinold@gmail.com",
-                  password: "s3cret123",
-                  // @ts-ignore
-                  ...redirect.query,
-                },
-              }).then((idpResp) => {
-                cy.log("AUTHENTICATED: Identity Provider");
-                cy.storeAllCookies();
-
-                // Parse SAMLResponse from HTML returned by Identity Provider
-                const $ = cheerio.load(idpResp.body);
-                const SAMLResponse = $("form input[name=SAMLResponse]").attr("value");
-
-                // 7. Post SAMLResponse to Service Provider Callback
-                cy.request({
-                  method: "POST",
-                  url: "http://localhost:3000/loginSaml/callback",
-                  body: { SAMLResponse },
-                }).then((respB) => {
-                  cy.log("Logged into Service Provider (Application)");
-                  cy.log(respB);
-                  log.end();
-                });
+                url: Cypress.env("samlSpLoginCallbackUrl"),
+                body: { SAMLResponse },
+              }).then((respB) => {
+                cy.log("Logged into Service Provider (Application)");
+                cy.log(respB);
+                log.end();
               });
             });
           });
-        }
-      );
+        });
+      });
     });
   });
 });

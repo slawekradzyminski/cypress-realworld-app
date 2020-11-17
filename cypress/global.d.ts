@@ -99,7 +99,7 @@ declare namespace Cypress {
     /**
      * Logs-in user by using API request to SAML server
      */
-    loginBySamlApi(username: string, password?: string): Chainable<Response>;
+    loginBySamlApi(): Chainable<Response>;
 
     /**
      * Logs in bypassing UI by triggering XState login event
