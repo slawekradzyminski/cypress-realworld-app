@@ -331,70 +331,31 @@ Cypress.Commands.add("loginBySamlUI", (username, password) => {
 
 Cypress.Commands.add("storeAllCookies", () => {
   return cy.getCookies({ domain: null }).then((cookies) => {
-    console.log("storing cookies: ", cookies);
+    //console.log("storing cookies: ", cookies);
     cookies.forEach((cookie) => {
       cy.setCookie(cookie.name, cookie.value, cookie);
     });
   });
 });
 
-const idpUrl = "http://localhost:8080/simplesaml/saml2/idp/SSOService.php?spentityid=saml-poc";
-const authN = "https://cypress-dx.okta.com/api/v1/authn";
-const oktaSessionsUrl = "https://cypress-dx.okta.com/api/v1/sessions?additionalFields=cookieToken";
-const currentSessionUrl = "https://cypress-dx.okta.com/api/v1/sessions/me";
 const serviceProviderUrl = "http://localhost:3000/loginSaml";
-const sessionRedirectUrl = "https://cypress-dx.okta.com/login/sessionCookieRedirect";
+const identityProviderSSOUrl =
+  "http://localhost:8080/simplesaml/saml2/idp/SSOService.php?spentityid=saml-poc";
+const oktaAuthnUrl = "https://cypress-dx.okta.com/api/v1/authn";
+const oktaSessionsUrl = "https://cypress-dx.okta.com/api/v1/sessions?additionalFields=cookieToken";
 const oktaAppLink =
   "https://login.cypress-dx.com/home/cypressorg3922345_cypressrwatest_1/0oake3yg7jI9KfHuN5d5/alnkhkp7ZcISjNKwP5d5";
 
-//
-// 1. Programmatically authenticate with Okta AuthN (store cookies)
-// 2. Use sessionToken to get session object
-Cypress.Commands.add("loginBySamlPrimaryAuthApi", (username, password) => {
-  // 1. Programmatically authenticate with Okta AuthN (store cookies)
-  cy.request("POST", authN, {
-    username: "kevinold@gmail.com",
-    password: "S3cret1234$$",
-  }).then((authN) => {
-    cy.log("AUTHENTICATED: Okta");
-    cy.log(authN);
-    cy.log(authN.body.status);
-    cy.setCookie("t", "default");
-    cy.setCookie("enduser_version", "1");
-    cy.setCookie("sid", authN.body.sessionToken);
-    cy.log(`ID: ${authN.body._embedded.user.id}`);
-    cy.log(`Login: ${authN.body._embedded.user.profile.login}`);
-    cy.log(
-      `Name: ${authN.body._embedded.user.profile.firstName} ${authN.body._embedded.user.profile.lastName}`
-    );
-    cy.storeAllCookies();
-    cy.request("GET", currentSessionUrl, {
-      headers: {
-        "Set-Cookie": authN.body.sessionToken,
-      },
-    }).then((sessionResp) => {
-      cy.log(sessionResp);
-    });
-  });
-});
-
 // Service Provider Initiated Flow
-// 1. Visit Service Provider (follow redirects, notice no 'state' to carry over)
-// 2. Programmatically authenticate with Okta AuthN (store cookies)
-// 3. Expect redirect to Identity Provider
-Cypress.Commands.add("loginBySamlServiceProviderApi", (username, password) => {
-  // 1. Visit Service Provider (follow redirects, notice no 'state' to carry over)
-  cy.request({ url: serviceProviderUrl }).then((resp) => {
-    cy.log(resp);
-  });
-});
-
-// Identity Provider Initiated Flow
-// 1. Visit Identity Provider
-// 2. Programmatically Authenticate (store cookies)
-// 3. Programmatically authenticate with Okta AuthN (store cookies)
-// 4. Visit Service Provider expecting redirect to SP callback
-Cypress.Commands.add("loginBySamlIdentityProviderApi", (username, password) => {
+// 1. Visit Service Provider (follow redirects)
+// 2. Programmatically authenticate with Okta Authn endpoint (store cookies)
+// 3. Create Okta Session with sessionToken
+// 4. Visit Okta RWA App with "onetimetoken" parameter with cookieToken to obtain SAMLResponse for Identity Provider
+// 5. Post SAMLResponse to Identity Provider SSO Endpoint
+// 6. Programmatically Authenticate with Identity Provider (store cookies) (provider specific)
+// 7. Post SAMLResponse to Service Provider Callback
+Cypress.Commands.add("loginBySamlApi", (username, password) => {
+  cy.clearCookies({ domain: null });
   const log = Cypress.log({
     name: "loginBySaml",
     displayName: "LOGIN",
@@ -403,41 +364,41 @@ Cypress.Commands.add("loginBySamlIdentityProviderApi", (username, password) => {
     autoEnd: false,
   });
 
+  // 1. Visit Service Provider (follow redirects)
   cy.request({ url: serviceProviderUrl }).then((resp) => {
-    // 3. Programmatically authenticate with Okta AuthN (store cookies)
-    cy.request("POST", authN, {
+    // 2. Programmatically authenticate with Okta Authn (store cookies)
+    cy.request("POST", oktaAuthnUrl, {
       username: "kevinold@gmail.com",
       password: "S3cret1234$$",
     }).then((authN) => {
       cy.log("AUTHENTICATED: Okta");
+
+      // 3. Create Okta Session with sessionToken
+      // https://developer.okta.com/docs/reference/api/sessions/#create-session-with-session-token
       cy.request("POST", oktaSessionsUrl, { sessionToken: authN.body.sessionToken }).then(
         (resp) => {
-          cy.log(resp);
-
+          // 4. Visit Okta RWA App with "onetimetoken" parameter with cookieToken to obtain SAMLResponse for Identity Provider
           cy.request({
             method: "GET",
             url: oktaAppLink,
             qs: { onetimetoken: resp.body.cookieToken },
           }).then((samlResp) => {
-            cy.log(samlResp);
-
+            // Parse SAMLResponse from HTML returned by Okta
             const $ = cheerio.load(samlResp.body);
-
             const SAMLResponse = $("form input[name=SAMLResponse]").attr("value");
-            cy.log(SAMLResponse);
+
+            // 5. Post SAMLResponse to Identity Provider SSO Endpoint
             cy.request({
               method: "POST",
-              url: idpUrl,
+              url: identityProviderSSOUrl,
               body: { SAMLResponse },
             }).then((idpResp) => {
-              cy.log(idpResp);
-
+              // Parse redirect for AuthState, used in identity provider programatic login (provider specific)
               const redirect = url.parse(idpResp.redirects[0].split(" ")[1], {
                 parseQueryString: true,
               });
-              cy.log(redirect);
 
-              cy.log(redirect.query);
+              // 6. Programmatically Authenticate with Identity Provider (store cookies) (provider specific)
               cy.request({
                 method: "POST",
                 url: `${redirect.host}${redirect.pathname}?`,
@@ -449,209 +410,28 @@ Cypress.Commands.add("loginBySamlIdentityProviderApi", (username, password) => {
                   ...redirect.query,
                 },
               }).then((idpResp) => {
-                cy.log("AUTHENTICATED");
+                cy.log("AUTHENTICATED: Identity Provider");
                 cy.storeAllCookies();
-                cy.log(idpResp);
 
+                // Parse SAMLResponse from HTML returned by Identity Provider
                 const $ = cheerio.load(idpResp.body);
-
                 const SAMLResponse = $("form input[name=SAMLResponse]").attr("value");
-                cy.log(SAMLResponse);
 
+                // 7. Post SAMLResponse to Service Provider Callback
                 cy.request({
                   method: "POST",
                   url: "http://localhost:3000/loginSaml/callback",
                   body: { SAMLResponse },
                 }).then((respB) => {
+                  cy.log("Logged into Service Provider (Application)");
                   cy.log(respB);
+                  log.end();
                 });
               });
             });
           });
         }
       );
-    });
-  });
-});
-
-Cypress.Commands.add("loginBySamlApi", (username, password) => {
-  cy.clearCookies({ domain: null });
-  const log = Cypress.log({
-    name: "loginBySaml",
-    displayName: "LOGIN",
-    message: [`🔐 Authenticating | ${username}`],
-    // @ts-ignore
-    autoEnd: false,
-  });
-
-  cy.request({ url: idpUrl }).then((resp) => {
-    cy.log(resp);
-    const redirect = url.parse(resp.redirects[0].split(" ")[1], { parseQueryString: true });
-    cy.log(redirect);
-
-    cy.log(redirect.query);
-
-    cy.request("POST", authN, {
-      username: "kevinold@gmail.com",
-      password: "S3cret1234$$",
-    }).then((authN) => {
-      cy.log(authN);
-      cy.getCookies({ domain: null }).then((cookies) => {
-        console.log("all cookies: ", cookies);
-        cookies.forEach((cookie) => {
-          cy.setCookie(cookie.name, cookie.value, cookie);
-        });
-      });
-    });
-  });
-
-  /*
-  cy.request({ url: serviceProviderUrl, followRedirect: true }).then((resp) => {
-    cy.log(resp);
-    //const samlRequestUrl = resp.redirectedToUrl;
-  });
-  */
-
-  /*
-  cy.request("POST", authN, {
-    username: "kevinold@gmail.com",
-    password: "S3cret1234$$",
-    //stateToken: "00BClWr4T-mnIqPV8dHkOQlwEIXxB4LLSfBVt7BxsM",
-  }).then((authN) => {
-    cy.getCookies({ domain: null }).then((cookies) => {
-      console.log("all cookies: ", cookies);
-      cookies.forEach((cookie) => {
-        cy.setCookie(cookie.name, cookie.value, cookie);
-      });
-    });
-  });
-  */
-});
-
-//
-//
-//
-Cypress.Commands.add("loginBySamlApiFull", (username, password) => {
-  cy.clearCookies({ domain: null });
-  const log = Cypress.log({
-    name: "loginBySaml",
-    displayName: "LOGIN",
-    message: [`🔐 Authenticating | ${username}`],
-    // @ts-ignore
-    autoEnd: false,
-  });
-
-  const serviceProviderUrl = "http://localhost:3000/loginSaml";
-  const idpUrl = "http://localhost:8080/simplesaml/saml2/idp/SSOService.php?spentityid=saml-poc";
-
-  cy.request(serviceProviderUrl).then((resp) => {
-    //cy.log(resp);
-    const redirect = url.parse(resp.redirects[0].split(" ")[1], { parseQueryString: true });
-    cy.log(redirect);
-
-    cy.log(redirect.query);
-    cy.request({
-      method: "POST",
-      url: `${redirect.host}${redirect.pathname}`,
-      form: true,
-      body: {
-        username: "kevinold@gmail.com",
-        password: "secret123",
-        // @ts-ignore
-        ...redirect.query,
-      },
-    }).then((respA) => {
-      cy.log("AUTHENTICATED");
-      cy.getCookies({ domain: null }).then((cookies) => {
-        console.log("first: ", cookies);
-        cookies.forEach((cookie) => {
-          cy.setCookie(cookie.name, cookie.value, cookie);
-        });
-        /*const cookiesToKeep = filter((o) => {
-          return o.name === "PHPSESSIDIDP";
-        }, cookies);
-        console.log("first keep: ", cookiesToKeep);*/
-      });
-      cy.log(respA);
-      // GET to serviceProviderUrl
-      cy.request(serviceProviderUrl).then((resp) => {
-        // Login to Okta via authn
-        // POST https://dev-483770.okta.com/api/v1/authn
-        const authN = "https://dev-483770.okta.com/api/v1/authn";
-        cy.request("POST", authN, {
-          username: "kevinold@gmail.com",
-          password: "Secret123$",
-        }).then((authN) => {
-          cy.getCookies({ domain: null }).then((cookies) => {
-            console.log("second: ", cookies);
-            cookies.forEach((cookie) => {
-              cy.setCookie(cookie.name, cookie.value, cookie);
-            });
-          });
-          // Should be redirected to idP from Okta
-          cy.request(serviceProviderUrl).then((idpResp) => {
-            console.log(idpResp);
-            cy.getCookies({ domain: null }).then((cookies) => {
-              console.log("all: ", cookies);
-            });
-            cy.visit("/");
-          });
-        });
-      });
-    });
-  });
-
-  log.snapshot();
-  log.end();
-});
-
-Cypress.Commands.add("loginBySamlApiOld", (username, password) => {
-  const log = Cypress.log({
-    name: "loginBySaml",
-    displayName: "LOGIN",
-    message: [`🔐 Authenticating | ${username}`],
-    // @ts-ignore
-    autoEnd: false,
-  });
-
-  const idpUrl = "http://localhost:8080/simplesaml/saml2/idp/SSOService.php?spentityid=saml-poc";
-
-  cy.request(idpUrl).then((resp) => {
-    //cy.log(resp);
-    const redirect = url.parse(resp.redirects[0].split(" ")[1], { parseQueryString: true });
-    cy.log(redirect);
-
-    cy.log(redirect.query);
-    cy.request({
-      method: "POST",
-      url: `${redirect.host}${redirect.pathname}`,
-      form: true,
-      body: {
-        username,
-        password,
-        // @ts-ignore
-        ...redirect.query,
-      },
-    }).then((respA) => {
-      cy.log("AUTHENTICATED");
-      cy.log(respA);
-
-      /*cy.request("http://localhost:3000/loginSaml").then((resp) => {
-          cy.log(resp);
-          const redirect = url.parse(resp.redirects[0].split(" ")[1], { parseQueryString: true });
-          cy.log(redirect);
-          cy.request(redirect.href).then((respRedirect) => {
-            cy.log(respRedirect);
-            //cy.request("http://localhost:3000/checkAuth").then((respAuth) => {
-            //  cy.log(respAuth);
-            //});
-          });
-        });*/
-      //cy.window({ log: false }).then((win) => win.authService.send("SAML", { user: re }));
-
-      log.snapshot();
-      log.end();
-      cy.visit("/");
     });
   });
 });

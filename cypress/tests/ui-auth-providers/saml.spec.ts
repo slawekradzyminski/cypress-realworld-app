@@ -7,7 +7,7 @@ describe("User Sign-up and Login", function () {
     cy.server();
     cy.route("POST", "/bankAccounts").as("createBankAccount");
 
-    cy.loginBySamlIdentityProviderApi(Cypress.env("auth_username"), Cypress.env("auth_password"));
+    cy.loginBySamlApi(Cypress.env("auth_username"), Cypress.env("auth_password"));
   });
   it("should allow a visitor to login, onboard and logout", function () {
     /*cy.contains("Get Started").should("be.visible");
