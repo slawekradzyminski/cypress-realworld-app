@@ -329,7 +329,7 @@ Cypress.Commands.add("loginBySamlUI", (username, password) => {
 });
 
 Cypress.Commands.add("storeAllCookies", () => {
-  cy.getCookies({ domain: null }).then((cookies) => {
+  return cy.getCookies({ domain: null }).then((cookies) => {
     console.log("storing cookies: ", cookies);
     cookies.forEach((cookie) => {
       cy.setCookie(cookie.name, cookie.value, cookie);
@@ -339,13 +339,52 @@ Cypress.Commands.add("storeAllCookies", () => {
 
 const idpUrl = "http://localhost:8080/simplesaml/saml2/idp/SSOService.php?spentityid=saml-poc";
 const authN = "https://cypress-dx.okta.com/api/v1/authn";
+const oktaSessionsUrl = "https://cypress-dx.okta.com/api/v1/sessions?additionalFields=cookieToken";
+const currentSessionUrl = "https://cypress-dx.okta.com/api/v1/sessions/me";
 const serviceProviderUrl = "http://localhost:3000/loginSaml";
+const sessionRedirectUrl = "https://cypress-dx.okta.com/login/sessionCookieRedirect";
+
+//
+// 1. Programmatically authenticate with Okta AuthN (store cookies)
+// 2. Use sessionToken to get session object
+Cypress.Commands.add("loginBySamlPrimaryAuthApi", (username, password) => {
+  // 1. Programmatically authenticate with Okta AuthN (store cookies)
+  cy.request("POST", authN, {
+    username: "kevinold@gmail.com",
+    password: "S3cret1234$$",
+  }).then((authN) => {
+    cy.log("AUTHENTICATED: Okta");
+    cy.log(authN);
+    cy.log(authN.body.status);
+    cy.setCookie("t", "default");
+    cy.setCookie("enduser_version", "1");
+    cy.setCookie("sid", authN.body.sessionToken);
+    cy.log(`ID: ${authN.body._embedded.user.id}`);
+    cy.log(`Login: ${authN.body._embedded.user.profile.login}`);
+    cy.log(
+      `Name: ${authN.body._embedded.user.profile.firstName} ${authN.body._embedded.user.profile.lastName}`
+    );
+    cy.storeAllCookies();
+    cy.request("GET", currentSessionUrl, {
+      headers: {
+        "Set-Cookie": authN.body.sessionToken,
+      },
+    }).then((sessionResp) => {
+      cy.log(sessionResp);
+    });
+  });
+});
 
 // Service Provider Initiated Flow
 // 1. Visit Service Provider (follow redirects, notice no 'state' to carry over)
 // 2. Programmatically authenticate with Okta AuthN (store cookies)
 // 3. Expect redirect to Identity Provider
-Cypress.Commands.add("loginBySamlServiceProviderApi", (username, password) => {});
+Cypress.Commands.add("loginBySamlServiceProviderApi", (username, password) => {
+  // 1. Visit Service Provider (follow redirects, notice no 'state' to carry over)
+  cy.request({ url: serviceProviderUrl }).then((resp) => {
+    cy.log(resp);
+  });
+});
 
 // Identity Provider Initiated Flow
 // 1. Visit Identity Provider
@@ -380,6 +419,7 @@ Cypress.Commands.add("loginBySamlIdentityProviderApi", (username, password) => {
       },
     }).then((respA) => {
       cy.log("AUTHENTICATED: Identity Provider");
+      cy.storeAllCookies();
 
       // 3. Programmatically authenticate with Okta AuthN (store cookies)
       cy.request("POST", authN, {
@@ -387,7 +427,11 @@ Cypress.Commands.add("loginBySamlIdentityProviderApi", (username, password) => {
         password: "S3cret1234$$",
       }).then((authN) => {
         cy.log("AUTHENTICATED: Okta");
+        cy.log(authN);
         cy.log(authN.body.status);
+        //cy.setCookie("t", "default");
+        //cy.setCookie("enduser_version", "1");
+        //cy.setCookie("sid", authN.body.sessionToken);
         cy.log(`ID: ${authN.body._embedded.user.id}`);
         cy.log(`Login: ${authN.body._embedded.user.profile.login}`);
         cy.log(
@@ -395,8 +439,11 @@ Cypress.Commands.add("loginBySamlIdentityProviderApi", (username, password) => {
         );
         cy.storeAllCookies();
 
-        // 4. Visit Service Provider expecting redirect to SP callback
-        cy.visit(serviceProviderUrl);
+        cy.request("POST", oktaSessionsUrl, { sessionToken: authN.body.sessionToken }).then(
+          (resp) => {
+            cy.log(resp);
+          }
+        );
       });
     });
   });
