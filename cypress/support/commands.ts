@@ -343,6 +343,8 @@ const oktaSessionsUrl = "https://cypress-dx.okta.com/api/v1/sessions?additionalF
 const currentSessionUrl = "https://cypress-dx.okta.com/api/v1/sessions/me";
 const serviceProviderUrl = "http://localhost:3000/loginSaml";
 const sessionRedirectUrl = "https://cypress-dx.okta.com/login/sessionCookieRedirect";
+const oktaAppLink =
+  "https://login.cypress-dx.com/home/cypressorg3922345_cypressrwatest_1/0oake3yg7jI9KfHuN5d5/alnkhkp7ZcISjNKwP5d5";
 
 //
 // 1. Programmatically authenticate with Okta AuthN (store cookies)
@@ -442,6 +444,14 @@ Cypress.Commands.add("loginBySamlIdentityProviderApi", (username, password) => {
         cy.request("POST", oktaSessionsUrl, { sessionToken: authN.body.sessionToken }).then(
           (resp) => {
             cy.log(resp);
+
+            cy.request({
+              method: "GET",
+              url: oktaAppLink,
+              qs: { onetimetoken: resp.body.cookieToken },
+            }).then((respRedir) => {
+              cy.log(respRedir);
+            });
           }
         );
       });
