@@ -5,7 +5,6 @@ import url from "url";
 import { pick, filter } from "lodash/fp";
 import { format as formatDate } from "date-fns";
 import { isMobile } from "./utils";
-import cheerio from "cheerio";
 
 Cypress.Commands.add("getBySel", (selector, ...args) => {
   return cy.get(`[data-test=${selector}]`, ...args);
@@ -377,8 +376,8 @@ Cypress.Commands.add("loginBySamlApi", () => {
           qs: { onetimetoken: resp.body.cookieToken },
         }).then((samlResp) => {
           // Parse SAMLResponse from HTML returned by Okta
-          const $ = cheerio.load(samlResp.body);
-          const SAMLResponse = $("form input[name=SAMLResponse]").attr("value");
+          const $html = Cypress.$(samlResp);
+          const SAMLResponse = $html.find("form input[name=SAMLResponse]").attr("value");
 
           // 5. Post SAMLResponse to Identity Provider SSO Endpoint
           cy.request({
@@ -407,8 +406,8 @@ Cypress.Commands.add("loginBySamlApi", () => {
               cy.storeAllCookies();
 
               // Parse SAMLResponse from HTML returned by Identity Provider
-              const $ = cheerio.load(idpResp.body);
-              const SAMLResponse = $("form input[name=SAMLResponse]").attr("value");
+              const $html = Cypress.$(idpResp.body);
+              const SAMLResponse = $html.find("form input[name=SAMLResponse]").attr("value");
 
               // 7. Post SAMLResponse to Service Provider Callback
               cy.request({
