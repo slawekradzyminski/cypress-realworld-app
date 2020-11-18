@@ -549,7 +549,7 @@ Cypress.Commands.add("loginBySamlApi", () => {
   // 5. Post SAMLResponse to Identity Provider SSO Endpoint
   // 6. Programmatically Authenticate with Identity Provider (store cookies) (provider specific)
   // 7. Post SAMLResponse to Service Provider Callback
-  serviceProviderInit()
+  return serviceProviderInit()
     .then(authenticateWithOktaAuthn)
     .then(createOktaSession)
     .then(getOktaSamlResponse)
