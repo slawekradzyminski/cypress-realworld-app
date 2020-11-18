@@ -540,5 +540,6 @@ Cypress.Commands.add("loginBySamlApi", () => {
     .then(getOktaSamlResponse)
     .then(getIdentityProviderRedirect)
     .then(authenticateWithIdentityProvider)
-    .then(postServiceProviderCallback);
+    .then(postServiceProviderCallback)
+    .then(() => log.end());
 });
