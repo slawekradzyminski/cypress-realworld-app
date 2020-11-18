@@ -7,7 +7,7 @@ describe("User Sign-up and Login", function () {
     cy.server();
     cy.route("POST", "/bankAccounts").as("createBankAccount");
 
-    cy.loginBySamlApi();
+    cy.loginByOktaSamlApi();
   });
   it("should allow a visitor to login, onboard and logout", function () {
     /*cy.contains("Get Started").should("be.visible");

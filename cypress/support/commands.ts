@@ -530,12 +530,12 @@ const postServiceProviderCallback = (SAMLResponse: any) => {
   });
 };
 
-Cypress.Commands.add("loginBySamlApi", () => {
+Cypress.Commands.add("loginByOktaSamlApi", () => {
+  // @ts-ignore
   cy.clearCookies({ domain: null, log: false });
 
   const log = Cypress.log({
-    name: "loginBySaml",
-    displayName: "LOGIN",
+    displayName: "SAML LOGIN",
     message: [`🔐 Authenticating | ${Cypress.env("oktaAuthUsername")}`],
     // @ts-ignore
     autoEnd: false,
