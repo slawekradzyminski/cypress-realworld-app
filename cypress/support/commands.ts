@@ -2,7 +2,7 @@
 ///<reference path="../global.d.ts" />
 
 import url from "url";
-import { pick, filter } from "lodash/fp";
+import { pick, flow } from "lodash/fp";
 import { format as formatDate } from "date-fns";
 import { isMobile } from "./utils";
 
@@ -345,7 +345,7 @@ Cypress.Commands.add("storeAllCookies", () => {
 // 5. Post SAMLResponse to Identity Provider SSO Endpoint
 // 6. Programmatically Authenticate with Identity Provider (store cookies) (provider specific)
 // 7. Post SAMLResponse to Service Provider Callback
-Cypress.Commands.add("loginBySamlApi", () => {
+Cypress.Commands.add("loginBySamlApiOrig", () => {
   cy.clearCookies({ domain: null });
   const log = Cypress.log({
     name: "loginBySaml",
@@ -355,7 +355,7 @@ Cypress.Commands.add("loginBySamlApi", () => {
     autoEnd: false,
   });
 
-  // 1. Visit Service Provider (follow redirects)
+  // 1. Visit Service Provider (follow redirects) (sets connect.sid cookie)
   cy.request(Cypress.env("samlSpLoginUrl")).then((resp) => {
     // 2. Programmatically authenticate with Okta Authn (store cookies)
     cy.request("POST", Cypress.env("samlOktaAuthn"), {
@@ -425,4 +425,131 @@ Cypress.Commands.add("loginBySamlApi", () => {
       });
     });
   });
+});
+
+// Service Provider Initiated Flow
+// 1. Visit Service Provider (follow redirects)
+// 2. Programmatically authenticate with Okta Authn endpoint (store cookies)
+// 3. Create Okta Session with sessionToken
+// 4. Visit Okta RWA App with "onetimetoken" parameter with cookieToken to obtain SAMLResponse for Identity Provider
+// 5. Post SAMLResponse to Identity Provider SSO Endpoint
+// 6. Programmatically Authenticate with Identity Provider (store cookies) (provider specific)
+// 7. Post SAMLResponse to Service Provider Callback
+
+Cypress.Commands.add("serviceProviderInit", () => {
+  return cy.request(Cypress.env("samlSpLoginUrl"));
+});
+
+Cypress.Commands.add("authenticateWithOktaAuthn", () => {
+  // 2. Programmatically authenticate with Okta Authn (store cookies)
+  return cy
+    .request("POST", Cypress.env("samlOktaAuthn"), {
+      username: Cypress.env("oktaAuthUsername"),
+      password: Cypress.env("oktaAuthPassword"),
+    })
+    .its("body.sessionToken");
+});
+
+Cypress.Commands.add("createOktaSession", { prevSubject: "window" }, (sessionToken) => {
+  // 3. Create Okta Session with sessionToken
+  // https://developer.okta.com/docs/reference/api/sessions/#create-session-with-session-token
+  return cy
+    .request("POST", Cypress.env("samlOktaSessionsApi"), {
+      sessionToken,
+    })
+    .its("body.cookieToken");
+});
+
+Cypress.Commands.add("getOktaSamlResponse", { prevSubject: "element" }, (cookieToken) => {
+  // 4. Visit Okta RWA App with "onetimetoken" parameter with cookieToken to obtain SAMLResponse for Identity Provider
+  return cy
+    .request({
+      method: "GET",
+      url: Cypress.env("samlOktaApp"),
+      qs: { onetimetoken: cookieToken },
+    })
+    .then((samlResp) => {
+      // Parse SAMLResponse from HTML returned by Okta
+      const $html = Cypress.$(samlResp);
+      const SAMLResponse = $html.find("form input[name=SAMLResponse]").attr("value");
+      return SAMLResponse;
+    });
+});
+Cypress.Commands.add("getIdentityProviderRedirect", { prevSubject: "element" }, (SAMLResponse) => {
+  // 5. Post SAMLResponse to Identity Provider SSO Endpoint
+  return cy
+    .request({
+      method: "POST",
+      url: Cypress.env("samlIdpSsoUrl"),
+      body: { SAMLResponse },
+    })
+    .then((idpResp) => {
+      // Parse redirect for AuthState, used in identity provider programatic login (provider specific)
+      // @ts-ignore
+      const redirect = url.parse(idpResp.redirects[0].split(" ")[1], {
+        parseQueryString: true,
+      });
+      return redirect;
+    });
+});
+Cypress.Commands.add("authenticateWithIdentityProvider", { prevSubject: "element" }, (redirect) => {
+  // 6. Programmatically Authenticate with Identity Provider (store cookies) (provider specific)
+  return cy
+    .request({
+      method: "POST",
+      url: `${redirect.host}${redirect.pathname}?`,
+      form: true,
+      body: {
+        username: Cypress.env("idpAuthUsername"),
+        password: Cypress.env("idpAuthPassword"),
+        // @ts-ignore
+        ...redirect.query,
+      },
+    })
+    .then((idpResp) => {
+      cy.log("AUTHENTICATED: Identity Provider");
+      cy.storeAllCookies();
+
+      // Parse SAMLResponse from HTML returned by Identity Provider
+      const $html = Cypress.$(idpResp.body);
+      const SAMLResponse = $html.find("form input[name=SAMLResponse]").attr("value");
+      return SAMLResponse;
+    });
+});
+Cypress.Commands.add("postServiceProviderCallback", { prevSubject: "element" }, (SAMLResponse) => {
+  // 7. Post SAMLResponse to Service Provider Callback
+  return cy.request({
+    method: "POST",
+    url: Cypress.env("samlSpLoginCallbackUrl"),
+    body: { SAMLResponse },
+  });
+});
+const postServiceProviderCallback = (SAMLResponse: any) => {
+  // 7. Post SAMLResponse to Service Provider Callback
+  return cy.request({
+    method: "POST",
+    url: Cypress.env("samlSpLoginCallbackUrl"),
+    body: { SAMLResponse },
+  });
+};
+
+Cypress.Commands.add("loginBySamlApi", () => {
+  cy.clearCookies({ domain: null });
+  const log = Cypress.log({
+    name: "loginBySaml",
+    displayName: "LOGIN",
+    message: [`🔐 Authenticating | ${Cypress.env("oktaAuthUsername")}`],
+    // @ts-ignore
+    autoEnd: false,
+  });
+
+  flow(
+    serviceProviderInit(),
+    authenticateWithOktaAuthn(),
+    createOktaSession(),
+    getOktaSamlResponse(),
+    getIdentityProviderRedirect(),
+    authenticateWithIdentityProvider(),
+    postServiceProviderCallback()
+  )();
 });
