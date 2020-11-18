@@ -428,27 +428,37 @@ Cypress.Commands.add("loginBySamlApiOrig", () => {
 });
 
 const serviceProviderInit = () => {
-  return cy.request(Cypress.env("samlSpLoginUrl"));
+  return cy.request({ url: Cypress.env("samlSpLoginUrl"), log: false });
 };
 
 const authenticateWithOktaAuthn = () => {
   // 2. Programmatically authenticate with Okta Authn (store cookies)
   return cy
-    .request("POST", Cypress.env("samlOktaAuthn"), {
-      username: Cypress.env("oktaAuthUsername"),
-      password: Cypress.env("oktaAuthPassword"),
+    .request({
+      method: "POST",
+      url: Cypress.env("samlOktaAuthn"),
+      body: {
+        username: Cypress.env("oktaAuthUsername"),
+        password: Cypress.env("oktaAuthPassword"),
+      },
+      log: false,
     })
-    .its("body.sessionToken");
+    .its("body.sessionToken", { log: false });
 };
 
 const createOktaSession = (sessionToken: string) => {
   // 3. Create Okta Session with sessionToken
   // https://developer.okta.com/docs/reference/api/sessions/#create-session-with-session-token
   return cy
-    .request("POST", Cypress.env("samlOktaSessionsApi"), {
-      sessionToken,
+    .request({
+      method: "POST",
+      url: Cypress.env("samlOktaSessionsApi"),
+      body: {
+        sessionToken,
+      },
+      log: false,
     })
-    .its("body.cookieToken");
+    .its("body.cookieToken", { log: false });
 };
 
 const getOktaSamlResponse = (cookieToken: string) => {
@@ -458,6 +468,7 @@ const getOktaSamlResponse = (cookieToken: string) => {
       method: "GET",
       url: Cypress.env("samlOktaApp"),
       qs: { onetimetoken: cookieToken },
+      log: false,
     })
     .then((samlResp) => {
       // Parse SAMLResponse from HTML returned by Okta
@@ -474,6 +485,7 @@ const getIdentityProviderRedirect = (SAMLResponse: any) => {
       method: "POST",
       url: Cypress.env("samlIdpSsoUrl"),
       body: { SAMLResponse },
+      log: false,
     })
     .then((idpResp) => {
       // Parse redirect for AuthState, used in identity provider programatic login (provider specific)
@@ -498,6 +510,7 @@ const authenticateWithIdentityProvider = (redirect: any) => {
         // @ts-ignore
         ...redirect.query,
       },
+      log: false,
     })
     .then((idpResp) => {
       // Parse SAMLResponse from HTML returned by Identity Provider
@@ -513,11 +526,13 @@ const postServiceProviderCallback = (SAMLResponse: any) => {
     method: "POST",
     url: Cypress.env("samlSpLoginCallbackUrl"),
     body: { SAMLResponse },
+    log: false,
   });
 };
 
 Cypress.Commands.add("loginBySamlApi", () => {
-  cy.clearCookies({ domain: null });
+  cy.clearCookies({ domain: null, log: false });
+
   const log = Cypress.log({
     name: "loginBySaml",
     displayName: "LOGIN",
