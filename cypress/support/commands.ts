@@ -1,6 +1,7 @@
 // @ts-check
 ///<reference path="../global.d.ts" />
 
+import url from "url";
 import { pick } from "lodash/fp";
 import { format as formatDate } from "date-fns";
 import { isMobile } from "./utils";
@@ -299,4 +300,106 @@ Cypress.Commands.add("database", (operation, entity, query, logTask = false) => 
     log.end();
     return data;
   });
+});
+
+const initAuthorizeWithBox = () => {
+  // 1. Initial request to Box with client_id, returning a requestToken
+  return cy
+    .request({
+      method: "GET",
+      url: Cypress.env("boxAuthorizeUrl"),
+      qs: {
+        client_id: Cypress.env("boxClientId"),
+        response_type: "code",
+      },
+      //log: false,
+    })
+    .then(({ body }) => {
+      const doc = Cypress.$(body);
+      const requestToken = doc.find("[name='request_token']").attr("value");
+      return requestToken;
+    });
+};
+
+const authenticateWithBox = (requestToken: string) => {
+  // 2. Login to Box with user credentials and requestToken
+  return cy
+    .request({
+      method: "POST",
+      url: Cypress.env("boxAuthorizeUrl"),
+      body: {
+        client_id: Cypress.env("boxClientId"),
+        response_type: "code",
+        request_token: requestToken,
+        login: Cypress.env("boxUsername"),
+        password: Cypress.env("boxPassword"),
+      },
+      //log: false,
+    })
+    .then(({ body }) => {
+      const doc = Cypress.$(body);
+      const ic = doc.find("[name='ic']").attr("value");
+      return ic;
+    });
+};
+
+const grantAppConsentWithBox = (ic: string) => {
+  // 3. Consent request with "ic" code and obtain "code" from redirect
+  return cy
+    .request({
+      method: "POST",
+      url: Cypress.env("boxAuthorizeUrl"),
+      body: {
+        client_id: Cypress.env("boxClientId"),
+        response_type: "code",
+        redirect_uri: "http://localhost:3000/callback",
+        doconsent: "doconsent",
+        scope: "root_readwrite",
+        ic,
+      },
+      followRedirect: false,
+      //log: false,
+    })
+    .then((resp) => {
+      // Parse redirect for "code"
+      // @ts-ignore
+      const redirect = url.parse(resp.redirectedToUrl, {
+        parseQueryString: true,
+      });
+      return redirect.query.code;
+    });
+};
+
+const getAccessTokensWithBox = (authorizationCode: string) => {
+  // 4. Exchange authorization token for access token, expiration and refresh token
+  return cy
+    .request({
+      method: "POST",
+      url: Cypress.env("boxTokenUrl"),
+      body: {
+        grant_type: "authorization_code",
+        code: authorizationCode,
+        client_id: Cypress.env("boxClientId"),
+        client_secret: Cypress.env("boxClientSecret"),
+      },
+      //log: false,
+    })
+    .then(({ body }) => {
+      console.log(body);
+    });
+};
+
+Cypress.Commands.add("loginByBoxApi", (username: string, password: string) => {
+  const log = Cypress.log({
+    displayName: "BOX LOGIN",
+    message: [`🔐 Authenticating | ${username}`],
+    // @ts-ignore
+    autoEnd: false,
+  });
+
+  return initAuthorizeWithBox()
+    .then(authenticateWithBox)
+    .then(grantAppConsentWithBox)
+    .then(getAccessTokensWithBox)
+    .then(() => log.end());
 });
