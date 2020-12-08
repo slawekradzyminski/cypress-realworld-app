@@ -319,3 +319,49 @@ Cypress.Commands.add("database", (operation, entity, query, logTask = false) => 
     return data;
   });
 });
+
+Cypress.Commands.add("loginByMicrosoftApi", (username: string, password: string) => {
+  cy.log(`Logging in as ${username}`);
+
+  cy.request({
+    method: "POST",
+    url: `https://login.microsoftonline.com/${Cypress.env("microsoftTenantId")}/oauth2/v2.0/token`,
+    headers: {
+      "cache-control": "no-cache",
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    form: true,
+    body: {
+      client_id: Cypress.env("microsoftClientId"),
+      username: Cypress.env("microsoftUsername"),
+      password: Cypress.env("microsoftPassword"),
+      grant_type: "password",
+      scope: "user.read openid profile offline_access",
+    },
+  }).then((response) => {
+    const { access_token } = response.body;
+
+    cy.request({
+      url: "https://graph.microsoft.com/v1.0/me",
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    }).then((resp) => {
+      const user = resp.body;
+
+      const userItem = {
+        token: access_token,
+        user: {
+          sub: user.id,
+          email: user.userPrincipalName,
+          given_name: user.givenName,
+          family_name: user.surName,
+        },
+      };
+
+      window.localStorage.setItem("microsoftCypress", JSON.stringify(userItem));
+
+      cy.visit("/");
+    });
+  });
+});
