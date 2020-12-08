@@ -102,6 +102,11 @@ declare namespace Cypress {
     loginByApi(username: string, password?: string): Chainable<Response>;
 
     /**
+     * Logs in via Microsoft API
+     */
+    loginByMicrosoftApi(username: string, password?: string): Chainable<any>;
+
+    /**
      * Logs in bypassing UI by triggering XState login event
      */
     loginByXstate(username: string, password?: string): Chainable<any>;
