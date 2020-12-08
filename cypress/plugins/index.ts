@@ -13,7 +13,7 @@ export default (on, config) => {
   config.env.paginationPageSize = process.env.PAGINATION_PAGE_SIZE;
   config.env.microsoftUsername = process.env.MICROSOFT_USERNAME;
   config.env.microsoftPassword = process.env.MICROSOFT_PASSWORD;
-  config.env.microsoftClientId = process.env.MICROSOFT_CLIENT_ID;
+  config.env.microsoftClientId = process.env.REACT_APP_MICROSOFT_CLIENT_ID;
   config.env.microsoftTenantId = process.env.MICROSOFT_TENANT_ID;
 
   const testDataApiEndpoint = `${config.env.apiUrl}/testData`;
