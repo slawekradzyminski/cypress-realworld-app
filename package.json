@@ -15,6 +15,8 @@
     "node": ">=12"
   },
   "dependencies": {
+    "@azure/msal-browser": "^2.8.0",
+    "@azure/msal-react": "^1.0.0-alpha.1",
     "@babel/cli": "7.12.8",
     "@babel/core": "7.12.9",
     "@babel/preset-env": "7.12.7",
