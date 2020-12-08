@@ -1,8 +1,12 @@
+import dotenv from "dotenv";
 import { Machine, assign, interpret, State } from "xstate";
 import { omit } from "lodash/fp";
 import { httpClient } from "../utils/asyncUtils";
 import { history } from "../utils/historyUtils";
 import { User } from "../models";
+
+dotenv.config({ path: ".env.local" });
+dotenv.config();
 
 export interface AuthMachineSchema {
   states: {
@@ -13,6 +17,7 @@ export interface AuthMachineSchema {
     logout: {};
     refreshing: {};
     authorized: {};
+    microsoft: {};
   };
 }
 
@@ -21,6 +26,7 @@ export type AuthMachineEvents =
   | { type: "LOGOUT" }
   | { type: "UPDATE" }
   | { type: "REFRESH" }
+  | { type: "MICROSOFT" }
   | { type: "SIGNUP" };
 
 export interface AuthMachineContext {
@@ -42,6 +48,7 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
         on: {
           LOGIN: "loading",
           SIGNUP: "signup",
+          MICROSOFT: "microsoft",
         },
       },
       signup: {
@@ -68,6 +75,16 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
       refreshing: {
         invoke: {
           src: "getUserProfile",
+          onDone: { target: "authorized", actions: "setUserProfile" },
+          onError: { target: "unauthorized", actions: "onError" },
+        },
+        on: {
+          LOGOUT: "logout",
+        },
+      },
+      microsoft: {
+        invoke: {
+          src: "getMicrosoftUserProfile",
           onDone: { target: "authorized", actions: "setUserProfile" },
           onError: { target: "unauthorized", actions: "onError" },
         },
@@ -114,6 +131,20 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
       getUserProfile: async (ctx, event) => {
         const resp = await httpClient.get(`http://localhost:3001/checkAuth`);
         return resp.data;
+      },
+      getMicrosoftUserProfile: /* istanbul ignore next */ (ctx, event: any) => {
+        // Map Google User fields to our User Model
+        const user = {
+          id: event.user.id,
+          email: event.user.email,
+          firstName: event.user.givenName,
+          lastName: event.user.surName,
+        };
+
+        // Set Microsoft Access Token in Local Storage for API calls
+        localStorage.setItem(process.env.REACT_APP_AUTH_TOKEN_NAME!, event.token);
+
+        return Promise.resolve({ user });
       },
       updateProfile: async (ctx, event: any) => {
         const payload = omit("type", event);
