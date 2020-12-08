@@ -14,7 +14,7 @@ export default (on, config) => {
   config.env.microsoftUsername = process.env.MICROSOFT_USERNAME;
   config.env.microsoftPassword = process.env.MICROSOFT_PASSWORD;
   config.env.microsoftClientId = process.env.REACT_APP_MICROSOFT_CLIENT_ID;
-  config.env.microsoftTenantId = process.env.MICROSOFT_TENANT_ID;
+  config.env.microsoftTenantId = process.env.REACT_APP_MICROSOFT_TENANT_ID;
 
   const testDataApiEndpoint = `${config.env.apiUrl}/testData`;
 
