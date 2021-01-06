@@ -1,13 +1,6 @@
-import { User } from "../../../src/models";
 import { isMobile } from "../../support/utils";
 
-type BankAccountsTestCtx = {
-  user?: User;
-};
-
 describe("Bank Accounts", function () {
-  const ctx: BankAccountsTestCtx = {};
-
   beforeEach(function () {
     cy.task("db:seed");
 
@@ -16,11 +9,8 @@ describe("Bank Accounts", function () {
     cy.route("DELETE", "/bankAccounts/*").as("deleteBankAccount");
     cy.route("GET", "/notifications").as("getNotifications");
 
-    cy.database("find", "users").then((user: User) => {
-      ctx.user = user;
-
-      return cy.loginByXstate(ctx.user.username);
-    });
+    cy.useSession("myUserByXstate");
+    cy.visit("/");
   });
 
   it("creates a new bank account", function () {
