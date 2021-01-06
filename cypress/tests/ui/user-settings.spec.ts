@@ -1,4 +1,3 @@
-import { User } from "../../../src/models";
 import { isMobile } from "../../support/utils";
 
 describe("User Settings", function () {
@@ -9,9 +8,8 @@ describe("User Settings", function () {
     cy.route("PATCH", "/users/*").as("updateUser");
     cy.route("GET", "/notifications").as("getNotifications");
 
-    cy.database("find", "users").then((user: User) => {
-      cy.loginByXstate(user.username);
-    });
+    cy.useSession("myUserByXstate");
+    cy.visit("/");
 
     if (isMobile()) {
       cy.getBySel("sidenav-toggle").click();
