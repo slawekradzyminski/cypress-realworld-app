@@ -17,8 +17,9 @@ describe("User Sign-up and Login", function () {
   });
 
   it("should remember a user for 30 days after login", function () {
-    cy.useSession("myUser");
-    cy.visit("/");
+    cy.database("find", "users").then((user: User) => {
+      cy.login(user.username, "s3cret", true);
+    });
 
     // Verify Session Cookie
     cy.getCookie("connect.sid").should("have.property", "expiry");
