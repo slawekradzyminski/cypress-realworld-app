@@ -8,7 +8,7 @@ describe("User Settings", function () {
     cy.route("PATCH", "/users/*").as("updateUser");
     cy.route("GET", "/notifications").as("getNotifications");
 
-    cy.useSession("myUserByXstate");
+    cy.useSession("userA");
     cy.visit("/");
 
     if (isMobile()) {

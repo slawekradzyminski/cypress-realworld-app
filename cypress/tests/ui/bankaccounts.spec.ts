@@ -9,7 +9,7 @@ describe("Bank Accounts", function () {
     cy.route("DELETE", "/bankAccounts/*").as("deleteBankAccount");
     cy.route("GET", "/notifications").as("getNotifications");
 
-    cy.useSession("myUserByXstate");
+    cy.useSession("userA");
     cy.visit("/");
   });
 
