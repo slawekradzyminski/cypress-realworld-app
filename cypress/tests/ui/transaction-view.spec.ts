@@ -24,8 +24,6 @@ describe("Transaction View", function () {
     cy.database("find", "users").then((user: User) => {
       ctx.authenticatedUser = user;
 
-      cy.loginByXstate(ctx.authenticatedUser.username);
-
       cy.database("find", "transactions", {
         receiverId: ctx.authenticatedUser.id,
         status: "pending",
@@ -35,6 +33,9 @@ describe("Transaction View", function () {
         ctx.transactionRequest = transaction;
       });
     });
+
+    cy.useSession("userA");
+    cy.visit("/");
 
     cy.getBySel("nav-personal-tab").click();
     cy.wait("@personalTransactions");

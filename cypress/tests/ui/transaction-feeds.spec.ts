@@ -55,9 +55,10 @@ describe("Transaction Feed", function () {
     cy.database("filter", "users").then((users: User[]) => {
       ctx.user = users[0];
       ctx.allUsers = users;
-
-      cy.loginByXstate(ctx.user.username);
     });
+
+    cy.useSession("userA");
+    cy.visit("/");
   });
   describe("app layout and responsiveness", function () {
     it("toggles the navigation drawer", function () {
