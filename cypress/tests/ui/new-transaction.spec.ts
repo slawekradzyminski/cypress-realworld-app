@@ -28,9 +28,10 @@ describe("New Transaction", function () {
       ctx.allUsers = users;
       ctx.user = users[0];
       ctx.contact = users[1];
-
-      return cy.loginByXstate(ctx.user.username);
     });
+
+    cy.useSession("userA");
+    cy.visit("/");
   });
 
   it("navigates to the new transaction form, selects a user and submits a transaction payment", function () {
