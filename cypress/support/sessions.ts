@@ -1,19 +1,16 @@
 import { User } from "models";
 
-cy.defineSession({
-  name: "myUser",
-  steps() {
-    cy.database("find", "users").then((user: User) => {
-      cy.login(user.username, "s3cret", true);
-    });
-  },
-});
+before(() => {
+  const usernames = ["userA", "userB", "userC"];
 
-cy.defineSession({
-  name: "myUserByXstate",
-  steps() {
-    cy.database("find", "users").then((user: User) => {
-      cy.loginByXstate(user.username);
+  cy.database("filter", "users").then((users: User[]) => {
+    usernames.forEach((username, index) => {
+      cy.defineSession({
+        name: username,
+        steps() {
+          cy.loginByXstate(users[index].username);
+        },
+      });
     });
-  },
+  });
 });
