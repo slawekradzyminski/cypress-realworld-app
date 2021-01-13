@@ -176,7 +176,8 @@ describe("New Transaction", function () {
     }
     cy.visualSnapshot("Transaction Payment Submitted Notification");
 
-    cy.switchUser(ctx.contact!.username);
+    cy.useSession("userB");
+    cy.visit("/");
 
     const updatedAccountBalance = Dinero({
       amount: ctx.contact!.balance + transactionPayload.amount * 100,
@@ -205,7 +206,8 @@ describe("New Transaction", function () {
     cy.getBySel("new-transaction-create-another-transaction").should("be.visible");
     cy.visualSnapshot("receiver - Transaction Payment Submitted Notification");
 
-    cy.switchUser(ctx.contact!.username);
+    cy.useSession("userB");
+    cy.visit("/");
 
     cy.getBySelLike("personal-tab").click();
 
@@ -226,7 +228,8 @@ describe("New Transaction", function () {
     cy.getBySelLike("transaction-description").should("be.visible");
     cy.visualSnapshot("Accept Transaction Request");
 
-    cy.switchUser(ctx.user!.username);
+    cy.useSession("userA");
+    cy.visit("/");
 
     const updatedAccountBalance = Dinero({
       amount: ctx.user!.balance + transactionPayload.amount * 100,
