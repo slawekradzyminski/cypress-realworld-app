@@ -42,6 +42,9 @@ linux-workflow: &linux-workflow
               name: Print machine info ℹ️
               command: yarn cypress info
           - run:
+              name: Print CPUs 🎛
+              command: node -p 'os.cpus()'
+          - run:
               name: Check Types
               command: yarn types
           - run:
