@@ -13,6 +13,8 @@ import "./auth-provider-commands/cognito";
 import "./auth-provider-commands/auth0";
 import "./auth-provider-commands/okta";
 
+const { _ } = Cypress;
+
 // custom command to make taking snapshots with full name
 // formed from the test title + suffix easier
 // cy.visualSnapshot() // default full test title
@@ -363,4 +365,19 @@ Cypress.Commands.add("loginByGoogleApi", () => {
       cy.visit("/");
     });
   });
+});
+
+Cypress.Commands.add("loginBySession", (name) => {
+  const { activeSessions } = cy.state();
+  const noActiveSessions = _.isUndefined(activeSessions);
+  const activeSessionsMissingName = _.isUndefined(_.get(activeSessions, name));
+  if (noActiveSessions || activeSessionsMissingName) {
+    cy.defineSession({
+      name,
+      steps: () => {
+        cy.loginByXstate(name);
+      },
+    });
+  }
+  cy.useSession(name);
 });
