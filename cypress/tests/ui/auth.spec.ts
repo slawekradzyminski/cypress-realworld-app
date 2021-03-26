@@ -18,7 +18,7 @@ describe("User Sign-up and Login", function () {
 
   it("should remember a user for 30 days after login", function () {
     cy.database("find", "users").then((user: User) => {
-      cy.loginByUi(user.username, "s3cret", true);
+      cy.login(user.username, "s3cret", true);
     });
 
     // Verify Session Cookie
@@ -58,7 +58,7 @@ describe("User Sign-up and Login", function () {
     cy.wait("@signup");
 
     // Login User
-    cy.loginByUi(userInfo.username, userInfo.password);
+    cy.login(userInfo.username, userInfo.password);
 
     // Onboarding
     cy.getBySel("user-onboarding-dialog").should("be.visible");
@@ -137,7 +137,7 @@ describe("User Sign-up and Login", function () {
   });
 
   it("should error for an invalid user", function () {
-    cy.loginByUi("invalidUserName", "invalidPa$$word");
+    cy.login("invalidUserName", "invalidPa$$word");
 
     cy.getBySel("signin-error")
       .should("be.visible")
@@ -147,7 +147,7 @@ describe("User Sign-up and Login", function () {
 
   it("should error for an invalid password for existing user", function () {
     cy.database("find", "users").then((user: User) => {
-      cy.loginByUi(user.username, "INVALID");
+      cy.login(user.username, "INVALID");
     });
 
     cy.getBySel("signin-error")
