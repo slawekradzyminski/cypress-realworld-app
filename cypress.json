@@ -5,6 +5,7 @@
   "viewportHeight": 1000,
   "viewportWidth": 1280,
   "firefoxGcInterval": null,
+  "experimentalSessionSupport": true,
   "retries": {
     "runMode": 2,
     "openMode": 1
