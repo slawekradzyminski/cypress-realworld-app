@@ -19,7 +19,9 @@ describe("Bank Accounts", function () {
     cy.database("find", "users").then((user: User) => {
       ctx.user = user;
 
-      return cy.loginByXstate(ctx.user.username);
+      // return cy.loginByXstate(ctx.user.username);
+      cy.loginBySession(ctx.user.username);
+      cy.visit("/");
     });
   });
 
