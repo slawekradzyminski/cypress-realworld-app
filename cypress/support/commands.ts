@@ -381,3 +381,16 @@ Cypress.Commands.add("loginBySession", (name) => {
   }
   cy.useSession(name);
 });
+
+Cypress.Commands.add("session", (name, steps) => {
+  const { activeSessions } = cy.state();
+  const noActiveSessions = _.isUndefined(activeSessions);
+  const activeSessionsMissingName = _.isUndefined(_.get(activeSessions, name));
+  if (noActiveSessions || activeSessionsMissingName) {
+    cy.defineSession({
+      name,
+      steps,
+    });
+  }
+  cy.useSession(name);
+});
