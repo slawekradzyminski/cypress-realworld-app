@@ -40,6 +40,29 @@ Cypress.Commands.add("getBySelLike", (selector, ...args) => {
   return cy.get(`[data-test*=${selector}]`, ...args);
 });
 
+Cypress.Commands.add("login", (username, password, { rememberUser = false } = {}) => {
+  const signinPath = "/signin";
+
+  cy.intercept("POST", "/login").as("loginUser");
+  cy.intercept("GET", "checkAuth").as("getUserProfile");
+
+  cy.location("pathname", { log: false }).then((currentPath) => {
+    if (currentPath !== signinPath) {
+      cy.visit(signinPath);
+    }
+  });
+
+  cy.getBySel("signin-username").type(username);
+  cy.getBySel("signin-password  ").type(password);
+
+  if (rememberUser) {
+    cy.getBySel("signin-remember-me").find("input").check();
+  }
+
+  cy.getBySel("signin-submit").click();
+  cy.wait("@loginUser");
+});
+
 Cypress.Commands.add("login", (username, password, { rememberUser = false, useSession = false } = {}) => {
   const login = () => {
     const signinPath = "/signin";
@@ -88,7 +111,14 @@ Cypress.Commands.add("login", (username, password, { rememberUser = false, useSe
   }
 
   if (useSession) {
-    cy.session(["login", username, password], login)
+    cy.session(
+      ["login", username, password],
+      login,
+        {
+        validate() {
+          cy.request('/whoami').its('status').should('eq', 200)
+        },
+      })
   } else {
     login()
   }
