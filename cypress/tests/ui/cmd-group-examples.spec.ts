@@ -229,3 +229,28 @@ describe("Sessions", { retries: 0 }, function () {
     cy.get('[data-test="sidenav-username"]').should("contain", userInfo.username);
   });
 });
+
+const testWithNestedCommands = () => {
+  it("test with nested commands", () => {
+    Cypress.session.clearAllSavedSessions();
+    cy.login("Katharina_Bernier", " s3cret", { useSession: true, failValidation: 0 });
+    cy.visit("/");
+  });
+};
+
+const createdNestedTest = (maxLevel, level) => {
+  if (level > maxLevel) {
+    return;
+  }
+  return describe(`level-${level}`, () => {
+    createdNestedTest(maxLevel, level + 1);
+    testWithNestedCommands();
+  });
+};
+
+// the xhr event is a good command to reference where there isn't enough space to display
+// all of the information it is trying to.
+describe("deep nesting with nesting in test", () => {
+  testWithNestedCommands();
+  createdNestedTest(12, 1);
+});
