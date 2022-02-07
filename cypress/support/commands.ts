@@ -13,6 +13,9 @@ import "./auth-provider-commands/cognito";
 import "./auth-provider-commands/auth0";
 import "./auth-provider-commands/okta";
 
+let tries = 0;
+let failValidation = 0;
+
 // custom command to make taking snapshots with full name
 // formed from the test title + suffix easier
 // cy.visualSnapshot() // default full test title
@@ -34,6 +37,17 @@ Cypress.Commands.add("visualSnapshot", (maybeName) => {
 
 Cypress.Commands.add("getBySel", (selector, ...args) => {
   return cy.get(`[data-test=${selector}]`, ...args);
+});
+
+Cypress.Commands.add("loginCustomCommand", (userInfo) => {
+  cy.get("form", { log: false }).within({ log: false }, (form) => {
+    // expect(form.get()).to.have.length(1);
+    cy.get("[data-test=signin-username]", { log: false }).type(userInfo.username,  { log: false });
+    cy.get("[data-test=signin-password]", { log: false }).type(userInfo.password,  { log: false });
+    cy.get("[data-test=signin-submit]", { log: false }).contains("ERROR", { log: false }).click();
+    // cy.get("[data-test=signin-submit]", { log: false }).contains("Sign In", { log: false }).click();
+  });
+  cy.log('Successfully logged in')
 });
 
 Cypress.Commands.add("getBySelLike", (selector, ...args) => {
@@ -63,7 +77,10 @@ Cypress.Commands.add("login", (username, password, { rememberUser = false } = {}
   cy.wait("@loginUser");
 });
 
-Cypress.Commands.add("login", (username, password, { rememberUser = false, useSession = false } = {}) => {
+Cypress.Commands.add("login", (username, password, opts = {}) => {
+  console.log(opts);
+  const { rememberUser = false, useSession = false } = opts;
+  failValidation = opts.failValidation;
   const login = () => {
     const signinPath = "/signin";
     // const log = Cypress.log({
@@ -108,19 +125,25 @@ Cypress.Commands.add("login", (username, password, { rememberUser = false, useSe
       // log.snapshot("after");
       // log.end();
     });
-  }
+  };
+
+  const validate = () => {
+    tries += 1;
+    if (tries <= failValidation) {
+      cy.log("fake validation error.");
+      return false;
+      // throw Error("fake validation error.");
+    }
+
+    cy.request("/whoami").its("status").should("eq", 200);
+  };
 
   if (useSession) {
-    cy.session(
-      ["login", username, password],
-      login,
-        {
-        validate() {
-          cy.request('/whoami').its('status').should('eq', 200)
-        },
-      })
+    cy.session(["login", username, password], login, { validate }).then(() => {
+      tries = 0;
+    });
   } else {
-    login()
+    login();
   }
 });
 

@@ -42,6 +42,17 @@ A payment application to demonstrate <strong>real-world</strong> usage of <a hre
 
 ---
 
+# Developing & Testing Against for Command Grouping & Command Log Changes
+
+The Cypress 9.0 compatible configuration is located in ./cypress. When running Cypress 9.0 in global mode, select cypress-realworld-app/cypress.
+
+
+The Cypress 10.0 compatible configuration is located at the root (./). When running Cypress 9.0 in global mode, select cypress-realworld-app.
+
+I have been running both versions at the same time (hence the diffent repos) though we plan to make visual changes to 10.0. 
+
+Be sure to start the app's server with `npm run start`.
+
 ## Features
 
 🛠 Built with [React][reactjs], [XState][xstate], [Express][express], [lowdb][lowdb], [Material-UI][material-ui] and [TypeScript][typescript]  

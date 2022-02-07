@@ -5,7 +5,7 @@ const config = {
   e2e: {
     supportFile: './cypress/support/index.ts',
     // specPattern:  'cypress/tests/**/*.cy.ts',
-    specPattern: ['cypress/e2e/**/*.cy.{js,jsx,ts,tsx}', 'cypress/tests/**/*.spec.ts'],
+    specPattern: ['cypress/tests/ui/cmd*.spec.ts'],
     viewportHeight: 1000,
     viewportWidth: 1280,
     setupNodeEvents(on, config) {
