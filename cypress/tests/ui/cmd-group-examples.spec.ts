@@ -97,8 +97,8 @@ describe("cy.within examples", () => {
         cy.get("form", { log: false })
           .should("be.visible") // chained command - show chained command next to chained within for design comparison
           .within({ log: false }, (form) => {
-            cy.get("[data-test=signin-username]", { log: false }).type(userInfo.username);
-            cy.get("[data-test=signin-password]", { log: false }).type(userInfo.password);
+            cy.get("[data-test=signin-username]", { log: false }).type(userInfo.username, { log: false });
+            cy.get("[data-test=signin-password]", { log: false }).type(userInfo.password, { log: false });
             cy.get("[data-test=signin-submit]", { log: false }).contains("ERROR");
           });
         cy.log("Successfully logged in");
@@ -141,11 +141,13 @@ describe("cy.within examples", () => {
     it("with nested .within", () => {
       cy.visit("/");
 
-      cy.get("form").within(() => {
-        cy.get("[data-test=signin-submit]").within(() => {
-          cy.get("span").contains("Sign In");
+      cy.get("form")
+        .should("be.visible") // chained command - show chained command next to chained within for design comparison
+        .within(() => {
+          cy.get("[data-test=signin-submit]").within(() => {
+            cy.get("span").contains("Sign In");
+          });
         });
-      });
       cy.log("log after all for visiuals");
     });
   });
@@ -232,9 +234,18 @@ describe("Sessions", { retries: 0 }, function () {
 
 const testWithNestedCommands = () => {
   it("test with nested commands", () => {
-    Cypress.session.clearAllSavedSessions();
-    cy.login("Katharina_Bernier", " s3cret", { useSession: true, failValidation: 0 });
+    cy.intercept("/sign-in");
     cy.visit("/");
+    cy.get("input");
+
+    cy.get("form")
+      .should("be.visible") // chained command - show chained command next to chained within for design comparison
+      .within({ log: true }, () => {
+        cy.get("[data-test=signin-username]").as("userInput");
+        cy.get("@userInput").type("fake_username");
+
+        cy.get("[data-test=signin-password]");
+      });
   });
 };
 
@@ -250,7 +261,213 @@ const createdNestedTest = (maxLevel, level) => {
 
 // the xhr event is a good command to reference where there isn't enough space to display
 // all of the information it is trying to.
-describe("deep nesting with nesting in test", () => {
+describe.skip("lazy deep nesting with nesting in test", () => {
   testWithNestedCommands();
-  createdNestedTest(12, 1);
+  createdNestedTest(7, 1);
+});
+
+describe("deep nesting with nesting in test", () => {
+  describe("level-1", () => {
+    it("test with nested commands", () => {
+      cy.intercept("/sign-in");
+      cy.visit("/");
+      cy.get("input");
+
+      cy.get("form")
+        .should("be.visible") // chained command - show chained command next to chained within for design comparison
+        .within({ log: true }, () => {
+          cy.get("[data-test=signin-username]").as("userInput");
+          cy.get("@userInput").type("fake_username");
+
+          cy.get("[data-test=signin-password]");
+        });
+    });
+
+    describe("level-2", () => {
+      it("test with nested commands", () => {
+        cy.intercept("/sign-in");
+        cy.visit("/");
+        cy.get("input");
+
+        cy.get("form")
+          .should("be.visible") // chained command - show chained command next to chained within for design comparison
+          .within({ log: true }, () => {
+            cy.get("[data-test=signin-username]").as("userInput");
+            cy.get("@userInput").type("fake_username");
+
+            cy.get("[data-test=signin-password]");
+          });
+      });
+
+      describe("level-3", () => {
+        it("test with nested commands", () => {
+          cy.intercept("/sign-in");
+          cy.visit("/");
+          cy.get("input");
+
+          cy.get("form")
+            .should("be.visible") // chained command - show chained command next to chained within for design comparison
+            .within({ log: true }, () => {
+              cy.get("[data-test=signin-username]").as("userInput");
+              cy.get("@userInput").type("fake_username");
+
+              cy.get("[data-test=signin-password]");
+            });
+        });
+
+        describe("level-4", () => {
+          it("test with nested commands", () => {
+            cy.intercept("/sign-in");
+            cy.visit("/");
+            cy.get("input");
+
+            cy.get("form")
+              .should("be.visible") // chained command - show chained command next to chained within for design comparison
+              .within({ log: true }, () => {
+                cy.get("[data-test=signin-username]").as("userInput");
+                cy.get("@userInput").type("fake_username");
+
+                cy.get("[data-test=signin-password]");
+              });
+          });
+
+          describe("level-5", () => {
+            it("test with nested commands", () => {
+              cy.intercept("/sign-in");
+              cy.visit("/");
+              cy.get("input");
+
+              cy.get("form")
+                .should("be.visible") // chained command - show chained command next to chained within for design comparison
+                .within({ log: true }, () => {
+                  cy.get("[data-test=signin-username]").as("userInput");
+                  cy.get("@userInput").type("fake_username");
+
+                  cy.get("[data-test=signin-password]");
+                });
+            });
+
+            describe("level-6", () => {
+              it("test with nested commands", () => {
+                cy.intercept("/sign-in");
+                cy.visit("/");
+                cy.get("input");
+
+                cy.get("form")
+                  .should("be.visible") // chained command - show chained command next to chained within for design comparison
+                  .within({ log: true }, () => {
+                    cy.get("[data-test=signin-username]").as("userInput");
+                    cy.get("@userInput").type("fake_username");
+
+                    cy.get("[data-test=signin-password]");
+                  });
+              });
+
+              describe("level-7", () => {
+                it("test with nested commands", () => {
+                  cy.intercept("/sign-in");
+                  cy.visit("/");
+                  cy.get("input");
+
+                  cy.get("form")
+                    .should("be.visible") // chained command - show chained command next to chained within for design comparison
+                    .within({ log: true }, () => {
+                      cy.get("[data-test=signin-username]").as("userInput");
+                      cy.get("@userInput").type("fake_username");
+
+                      cy.get("[data-test=signin-password]");
+                    });
+                });
+
+                describe("level-8", () => {
+                  it("test with nested commands", () => {
+                    cy.intercept("/sign-in");
+                    cy.visit("/");
+                    cy.get("input");
+
+                    cy.get("form")
+                      .should("be.visible") // chained command - show chained command next to chained within for design comparison
+                      .within({ log: true }, () => {
+                        cy.get("[data-test=signin-username]").as("userInput");
+                        cy.get("@userInput").type("fake_username");
+
+                        cy.get("[data-test=signin-password]");
+                      });
+                  });
+
+                  describe("level-9", () => {
+                    it("test with nested commands", () => {
+                      cy.intercept("/sign-in");
+                      cy.visit("/");
+                      cy.get("input");
+
+                      cy.get("form")
+                        .should("be.visible") // chained command - show chained command next to chained within for design comparison
+                        .within({ log: true }, () => {
+                          cy.get("[data-test=signin-username]").as("userInput");
+                          cy.get("@userInput").type("fake_username");
+
+                          cy.get("[data-test=signin-password]");
+                        });
+                    });
+
+                    describe("level-10", () => {
+                      it("test with nested commands", () => {
+                        cy.intercept("/sign-in");
+                        cy.visit("/");
+                        cy.get("input");
+
+                        cy.get("form")
+                          .should("be.visible") // chained command - show chained command next to chained within for design comparison
+                          .within({ log: true }, () => {
+                            cy.get("[data-test=signin-username]").as("userInput");
+                            cy.get("@userInput").type("fake_username");
+
+                            cy.get("[data-test=signin-password]");
+                          });
+                      });
+
+                      // describe("level-11", () => {
+                      //   it("test with nested commands", () => {
+                      //     cy.intercept("/sign-in");
+                      //     cy.visit("/");
+                      //     cy.get("input");
+
+                      //     cy.get("form")
+                      //       .should("be.visible") // chained command - show chained command next to chained within for design comparison
+                      //       .within({ log: true }, () => {
+                      //         cy.get("[data-test=signin-username]").as("userInput");
+                      //         cy.get("@userInput").type("fake_username");
+
+                      //         cy.get("[data-test=signin-password]");
+                      //       });
+                      //   });
+
+                      //   describe("level-12", () => {
+                      //     it("test with nested commands", () => {
+                      //       cy.intercept("/sign-in");
+                      //       cy.visit("/");
+                      //       cy.get("input");
+
+                      //       cy.get("form")
+                      //         .should("be.visible") // chained command - show chained command next to chained within for design comparison
+                      //         .within({ log: true }, () => {
+                      //           cy.get("[data-test=signin-username]").as("userInput");
+                      //           cy.get("@userInput").type("fake_username");
+
+                      //           cy.get("[data-test=signin-password]");
+                      //         });
+                      //     });
+                      //   });
+                      // });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
 });

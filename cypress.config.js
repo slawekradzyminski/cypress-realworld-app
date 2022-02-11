@@ -1,8 +1,8 @@
 const config = {
-  baseUrl: "http://localhost:3000",
   projectId: "7s5okt",
   integrationFolder: "cypress/tests",
   e2e: {
+    baseUrl: "http://localhost:3000",
     supportFile: './cypress/support/index.ts',
     // specPattern:  'cypress/tests/**/*.cy.ts',
     specPattern: ['cypress/tests/ui/cmd*.spec.ts'],
