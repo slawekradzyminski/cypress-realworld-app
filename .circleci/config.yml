@@ -8,7 +8,7 @@ executors:
   with-chrome-and-firefox:
     docker:
       - image: "cypress/browsers:node14.17.0-chrome88-ff89"
-    resource_class: medium+
+    resource_class: large
     environment:
       PERCY_TOKEN:
       CYPRESS_coverage: false
