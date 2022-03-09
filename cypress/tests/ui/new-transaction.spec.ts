@@ -32,6 +32,7 @@ describe("New Transaction", function () {
 
       return cy.loginByXstate(ctx.user.username);
     });
+    cy.visit("/");
   });
 
   it("navigates to the new transaction form, selects a user and submits a transaction payment", function () {

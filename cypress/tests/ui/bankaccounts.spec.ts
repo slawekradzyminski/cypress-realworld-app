@@ -36,6 +36,7 @@ describe("Bank Accounts", function () {
 
       return cy.loginByXstate(ctx.user.username);
     });
+    cy.visit("/");
   });
 
   it("creates a new bank account", function () {

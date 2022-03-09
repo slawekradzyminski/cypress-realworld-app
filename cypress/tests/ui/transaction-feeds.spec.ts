@@ -57,7 +57,9 @@ describe("Transaction Feed", function () {
 
       cy.loginByXstate(ctx.user.username);
     });
+    cy.visit("/");
   });
+
   describe("app layout and responsiveness", function () {
     it("toggles the navigation drawer", function () {
       cy.wait("@notifications");

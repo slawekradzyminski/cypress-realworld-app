@@ -28,6 +28,7 @@ describe("Notifications", function () {
   describe("notifications from user interactions", function () {
     it("User A likes a transaction of User B; User B gets notification that User A liked transaction ", function () {
       cy.loginByXstate(ctx.userA.username);
+      cy.visit("/");
       cy.wait("@getNotifications");
 
       cy.database("find", "transactions", { senderId: ctx.userB.id }).then(
@@ -82,7 +83,7 @@ describe("Notifications", function () {
 
     it("User C likes a transaction between User A and User B; User A and User B get notifications that User C liked transaction", function () {
       cy.loginByXstate(ctx.userC.username);
-
+      cy.visit("/");
       cy.database("find", "transactions", {
         senderId: ctx.userB.id,
         receiverId: ctx.userA.id,
@@ -130,6 +131,7 @@ describe("Notifications", function () {
 
     it("User A comments on a transaction of User B; User B gets notification that User A commented on their transaction", function () {
       cy.loginByXstate(ctx.userA.username);
+      cy.visit("/");
       cy.visualSnapshot("Logged in as user A");
 
       cy.database("find", "transactions", { senderId: ctx.userB.id }).then(
@@ -159,6 +161,7 @@ describe("Notifications", function () {
 
     it("User C comments on a transaction between User A and User B; User A and B get notifications that User C commented on their transaction", function () {
       cy.loginByXstate(ctx.userC.username);
+      cy.visit("/");
 
       cy.database("find", "transactions", {
         senderId: ctx.userB.id,
@@ -200,6 +203,7 @@ describe("Notifications", function () {
 
     it("User A sends a payment to User B", function () {
       cy.loginByXstate(ctx.userA.username);
+      cy.visit("/");
 
       cy.getBySelLike("new-transaction").click();
       cy.createTransaction({
@@ -226,6 +230,7 @@ describe("Notifications", function () {
 
     it("User A sends a payment request to User C", function () {
       cy.loginByXstate(ctx.userA.username);
+      cy.visit("/");
 
       cy.getBySelLike("new-transaction").click();
       cy.createTransaction({
@@ -252,6 +257,7 @@ describe("Notifications", function () {
     cy.intercept("GET", "/notifications", []).as("notifications");
 
     cy.loginByXstate(ctx.userA.username);
+    cy.visit("/");
 
     if (isMobile()) {
       cy.getBySel("sidenav-toggle").click();

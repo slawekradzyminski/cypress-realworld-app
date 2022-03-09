@@ -11,7 +11,8 @@ describe("User Settings", function () {
     cy.database("find", "users").then((user: User) => {
       cy.loginByXstate(user.username);
     });
-
+    // Visit pageagain to trigger call to /transactions/public
+    cy.visit("/");
     if (isMobile()) {
       cy.getBySel("sidenav-toggle").click();
     }

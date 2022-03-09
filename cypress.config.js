@@ -5,8 +5,8 @@ const config = {
     baseUrl: "http://localhost:3000",
     supportFile: './cypress/support/index.ts',
     // specPattern:  'cypress/tests/**/*.cy.ts',
-    specPattern: ['cypress/tests/ui/cmd*.spec.ts'],
     viewportHeight: 1000,
+    specPattern: ['cypress/tests/ui/*.spec.ts'], // correct - one tests
     viewportWidth: 1280,
     setupNodeEvents(on, config) {
       const e2ePluginSetup = require("./cypress/plugins").default;

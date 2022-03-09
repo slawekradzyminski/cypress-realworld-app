@@ -160,7 +160,7 @@ describe("cy.within examples", () => {
 //
 // NOTE: these tests are currently relying on the order they've been written.
 //      Let me know if I need to update these so they are easier to work with.
-describe("Sessions", { retries: 0 }, function () {
+describe("Sessions", { retries: 1 }, function () {
   // const userInfo = {
   //   firstName: "Bob",
   //   lastName: "Ross",
@@ -238,14 +238,44 @@ const testWithNestedCommands = () => {
     cy.visit("/");
     cy.get("input");
 
-    cy.get("form")
+    cy.get("html")
       .should("be.visible") // chained command - show chained command next to chained within for design comparison
-      .within({ log: true }, () => {
-        cy.get("[data-test=signin-username]").as("userInput");
-        cy.get("@userInput").type("fake_username");
-
-        cy.get("[data-test=signin-password]");
+      .within(() => {
+        cy.log("nesting level 1");
+        cy.get("body")
+          .should("be.visible") // chained command - show chained command next to chained within for design comparison
+          .within(() => {
+            cy.log("nesting level 2");
+            cy.get("#root")
+              .should("exist")
+              .within(() => {
+                cy.log("nesting level 3");
+                cy.get("main").within(() => {
+                  cy.log("nesting level 4");
+                  cy.get("form").within(() => {
+                    cy.log("nesting level 5");
+                    cy.get("[data-test=signin-username]").as("userInput");
+                    cy.get("div").within(() => {
+                      cy.log("nesting level 6");
+                      cy.get("@userInput").type("fake_username");
+                    });
+                  });
+                });
+                // .within('')
+              });
+            cy.log("random log for good measure");
+          })
+          .should("be.visible");
       });
+
+    cy.get("[data-test=signin-username]").as("userInput");
+    cy.get("@userInput").type("fake_username");
+
+    cy.get("[data-test=signin-password]");
+    cy.log("well that it folks");
+// /      .within({ log: true }, () => {
+
+      // });
   });
 };
 
@@ -261,7 +291,7 @@ const createdNestedTest = (maxLevel, level) => {
 
 // the xhr event is a good command to reference where there isn't enough space to display
 // all of the information it is trying to.
-describe.skip("lazy deep nesting with nesting in test", () => {
+describe("lazy deep nesting with nesting in test", () => {
   testWithNestedCommands();
   createdNestedTest(7, 1);
 });
@@ -313,6 +343,9 @@ describe("deep nesting with nesting in test", () => {
 
               cy.get("[data-test=signin-password]");
             });
+          cy.intercept("/sign-in").as("signIn");
+          cy.visit("/sign-in");
+
         });
 
         describe("level-4", () => {

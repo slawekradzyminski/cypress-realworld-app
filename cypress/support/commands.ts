@@ -226,7 +226,7 @@ Cypress.Commands.add("loginByXstate", (username, password = Cypress.env("default
         log.snapshot("after");
         log.end();
       });
-  })
+  });
 });
 
 Cypress.Commands.add("logoutByXstate", () => {

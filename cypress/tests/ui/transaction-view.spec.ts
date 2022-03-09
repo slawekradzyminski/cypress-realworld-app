@@ -34,7 +34,8 @@ describe("Transaction View", function () {
         ctx.transactionRequest = transaction;
       });
     });
-
+    // Visit pageagain to trigger call to /transactions/public
+    cy.visit("/");
     cy.getBySel("nav-personal-tab").click();
     cy.wait("@personalTransactions");
   });
