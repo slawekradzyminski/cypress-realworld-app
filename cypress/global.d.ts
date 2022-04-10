@@ -6,15 +6,6 @@ declare namespace Cypress {
   import { publicTransactionService } from "../src/machines/publicTransactionsMachine";
   import { contactsTransactionService } from "../src/machines/contactsTransactionsMachine";
   import { personalTransactionService } from "../src/machines/personalTransactionsMachine";
-  import {
-    User,
-    BankAccount,
-    Like,
-    Comment,
-    Transaction,
-    BankTransfer,
-    Contact,
-  } from "../src/models";
 
   interface CustomWindow extends Window {
     authService: typeof authService;
@@ -44,8 +35,8 @@ declare namespace Cypress {
      */
     visualSnapshot(maybeName?): Chainable<any>;
 
-    getBySel(dataTestAttribute: string, args?: any): Chainable<Element>;
-    getBySelLike(dataTestPrefixAttribute: string, args?: any): Chainable<Element>;
+    getBySel(dataTestAttribute: string, args?: any): Chainable<JQuery<Element>>;
+    getBySelLike(dataTestPrefixAttribute: string, args?: any): Chainable<JQuery<Element>>;
 
     /**
      *  Cypress task for directly querying to the database within tests
@@ -123,7 +114,7 @@ declare namespace Cypress {
     /**
      * Logs out via bypassing UI by triggering XState logout event
      */
-    logoutByXstate(): Chainable<void>;
+    logoutByXstate(): void;
 
     /**
      * Logs in via Auth0 API

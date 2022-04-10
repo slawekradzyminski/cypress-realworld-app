@@ -110,6 +110,21 @@ describe("Users API", function () {
         });
       });
     });
+
+    it("get users by firstName", function () {
+      const { username, firstName } = ctx.searchUser!;
+
+      cy.request({
+        method: "GET",
+        url: `${apiUsers}/search`,
+        qs: { q: firstName },
+      }).then((response) => {
+        expect(response.status).to.eq(200);
+        expect(response.body.results[0]).to.contain({
+          username,
+        });
+      });
+    });
   });
 
   context("POST /users", function () {
