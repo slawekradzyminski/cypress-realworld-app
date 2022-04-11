@@ -139,7 +139,8 @@ describe("Notifications", function () {
         }
       );
 
-      cy.getBySelLike("comment-input").type("Thank You{enter}");
+      cy.getBySelLike("comment-input").type("Thank You");
+      cy.get("form").submit();
 
       cy.wait("@postComment");
 
@@ -168,7 +169,8 @@ describe("Notifications", function () {
         cy.visit(`/transaction/${transaction.id}`);
       });
 
-      cy.getBySelLike("comment-input").type("Thank You{enter}");
+      cy.getBySelLike("comment-input").type("Thank You");
+      cy.get("form").submit();
 
       cy.wait("@postComment");
 
