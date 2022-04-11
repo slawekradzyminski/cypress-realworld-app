@@ -68,7 +68,8 @@ describe("Transaction View", function () {
     const comments = ["Thank you!", "Appreciate it."];
 
     comments.forEach((comment, index) => {
-      cy.getBySelLike("comment-input").type(`${comment}{enter}`);
+      cy.getBySelLike("comment-input").type(`${comment}`);
+      cy.get("form").submit();
       cy.getBySelLike("comments-list").children().eq(index).contains(comment);
     });
 
