@@ -37,7 +37,9 @@ jobs:
   api-tests:
     timeout-minutes: 15
     runs-on: ubuntu-latest
-    container: cypress/browsers:node16.13.2-chrome100-ff98
+    container: 
+      image: cypress/browsers:node16.13.2-chrome100-ff98
+      options: --user 1001
     needs: install
     steps:
       - name: Checkout
@@ -97,7 +99,9 @@ jobs:
   ui-chrome-mobile-tests:
     timeout-minutes: 15
     runs-on: ubuntu-latest
-    container: cypress/browsers:node16.13.2-chrome100-ff98
+    container: 
+      image: cypress/browsers:node16.13.2-chrome100-ff98
+      options: --user 1001
     needs: install
     steps:
       - name: Checkout
