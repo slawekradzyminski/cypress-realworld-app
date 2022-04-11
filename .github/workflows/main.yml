@@ -32,30 +32,33 @@ jobs:
           if-no-files-found: error
           path: build
 
-  install-windows:
-    runs-on: windows-2019
+  api-tests:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    container: cypress/browsers:node14.17.6-chrome100-ff98
+    needs: install
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cypress install
-        uses: cypress-io/github-action@v2
-        with:
-          runTests: false
-      # report machine parameters
-      - run: yarn cypress info
-      - run: node -p 'os.cpus()'
-      - run: yarn types
-      - run: yarn lint
-      - run: yarn test:unit:ci
-      - run: yarn build:ci
-
-      - name: Save build folder
-        uses: actions/upload-artifact@v3
+      - name: Download the build folders
+        uses: actions/download-artifact@v3
         with:
           name: build
-          if-no-files-found: error
           path: build
+
+      - name: "API Tests"
+        uses: cypress-io/github-action@v2
+        with:
+          start: yarn start:ci
+          wait-on: "http://localhost:3000"
+          wait-on-timeout: 120
+          browser: chrome
+          spec: cypress/tests/api/*
+        env:
+          # Recommended: pass the GitHub token lets this action correctly
+          # determine the unique run id necessary to re-run the checks
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   ui-chrome-tests:
     timeout-minutes: 15
@@ -169,32 +172,6 @@ jobs:
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
           browser: firefox
-          spec: cypress/tests/ui/*
-        env:
-          # Recommended: pass the GitHub token lets this action correctly
-          # determine the unique run id necessary to re-run the checks
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  ui-windows-tests:
-    timeout-minutes: 40
-    runs-on: windows-2019
-    needs: install-windows
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Download the build folders
-        uses: actions/download-artifact@v3
-        with:
-          name: build
-          path: build
-
-      - name: "UI Tests - Electron - Windows"
-        uses: cypress-io/github-action@v2
-        with:
-          start: yarn start:ci
-          wait-on: "http://localhost:3000"
-          wait-on-timeout: 120
           spec: cypress/tests/ui/*
         env:
           # Recommended: pass the GitHub token lets this action correctly
