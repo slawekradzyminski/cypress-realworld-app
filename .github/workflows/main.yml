@@ -6,6 +6,32 @@ on:
       - "renovate/**"
 
 jobs:
+  code-level-tests:
+    runs-on: ubuntu-latest
+    container: 
+      image: cypress/browsers:node16.13.2-chrome100-ff98
+      options: --user 1001
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Cypress install
+        uses: cypress-io/github-action@v2
+        with:
+          runTests: false
+      - run: yarn cypress info
+      - run: node -p 'os.cpus()'
+      - run: yarn types
+      - run: yarn lint
+      - run: yarn test:unit:ci
+
+      - name: Save build folder
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          if-no-files-found: error
+          path: build
+
   install:
     runs-on: ubuntu-latest
     container: 
@@ -19,12 +45,6 @@ jobs:
         uses: cypress-io/github-action@v2
         with:
           runTests: false
-      # report machine parameters
-      - run: yarn cypress info
-      - run: node -p 'os.cpus()'
-      - run: yarn types
-      - run: yarn lint
-      - run: yarn test:unit:ci
       - run: yarn build:ci
 
       - name: Save build folder
