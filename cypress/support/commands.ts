@@ -3,7 +3,6 @@
 
 import { pick } from "lodash/fp";
 import { format as formatDate } from "date-fns";
-import { isMobile } from "./utils";
 
 // Import Cypress Percy plugin command (https://docs.percy.io/docs/cypress)
 import "@percy/cypress";
@@ -163,44 +162,6 @@ Cypress.Commands.add("loginByXstate", (username, password = Cypress.env("default
       log.snapshot("after");
       log.end();
     });
-});
-
-Cypress.Commands.add("logoutByXstate", () => {
-  const log = Cypress.log({
-    name: "logoutByXstate",
-    displayName: "LOGOUT BY XSTATE",
-    message: [`🔒 Logging out current user`],
-    // @ts-ignore
-    autoEnd: false,
-  });
-
-  cy.window({ log: false }).then((win) => {
-    log.snapshot("before");
-    win.authService.send("LOGOUT");
-  });
-
-  return cy
-    .location("pathname")
-    .should("equal", "/signin")
-    .then(() => {
-      log.snapshot("after");
-      log.end();
-    });
-});
-
-Cypress.Commands.add("switchUserByXstate", (username) => {
-  cy.logoutByXstate();
-  return cy.loginByXstate(username).then(() => {
-    if (isMobile()) {
-      cy.getBySel("sidenav-toggle").click();
-      cy.getBySel("sidenav-username").contains(username);
-      cy.getBySel("sidenav-toggle").click({ force: true });
-    } else {
-      cy.getBySel("sidenav-username").contains(username);
-    }
-    cy.getBySel("list-skeleton").should("not.exist");
-    cy.getBySelLike("transaction-item").should("have.length.greaterThan", 1);
-  });
 });
 
 Cypress.Commands.add("createTransaction", (payload) => {

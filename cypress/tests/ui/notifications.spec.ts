@@ -71,7 +71,7 @@ describe("Notifications", function () {
         .and("contain", "liked");
 
       cy.log("🚩 Marks notification as read");
-      cy.getBySelLike("notification-mark-read").first().click({ force: true });
+      cy.getBySelLike("notification-mark-read").first().click();
       cy.wait("@updateNotification");
 
       cy.get("@preDismissedNotificationCount").then((count) => {

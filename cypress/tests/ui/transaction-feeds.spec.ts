@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import Dinero from "dinero.js";
 import {
   User,
@@ -188,6 +189,7 @@ describe("Transaction Feed", function () {
 
         // Temporary fix: https://github.com/cypress-io/cypress-realworld-app/issues/338
         if (isMobile()) {
+          // eslint-disable-next-line cypress/no-unnecessary-waiting
           cy.wait(10);
         }
 

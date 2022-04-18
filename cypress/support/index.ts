@@ -1,6 +1,7 @@
 // @ts-check
 import "@cypress/code-coverage/support";
 import "./commands";
+import "./appactions";
 import "@percy/cypress";
 import { isMobile } from "./utils";
 
