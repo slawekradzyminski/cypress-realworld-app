@@ -25,13 +25,6 @@ jobs:
       - run: yarn lint
       - run: yarn test:unit:ci
 
-      - name: Save build folder
-        uses: actions/upload-artifact@v3
-        with:
-          name: build
-          if-no-files-found: error
-          path: build
-
   install:
     runs-on: ubuntu-latest
     container: 
