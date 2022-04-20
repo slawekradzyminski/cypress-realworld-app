@@ -62,6 +62,7 @@ export default (on, config) => {
     "filter:database"(queryPayload) {
       return queryDatabase(queryPayload, (data, attrs) => _.filter(data.results, attrs));
     },
+    // first value
     "find:database"(queryPayload) {
       return queryDatabase(queryPayload, (data, attrs) => _.find(data.results, attrs));
     },
