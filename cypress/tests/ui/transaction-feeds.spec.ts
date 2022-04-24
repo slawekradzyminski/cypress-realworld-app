@@ -19,6 +19,13 @@ type TransactionFeedsCtx = {
   contactIds?: string[];
 };
 
+const nextTransactionFeedPage = (service: string, page: number): void => {
+  cy.window({ log: false }).then((win) => {
+    // @ts-ignore
+    return win[service].send("FETCH", { page });
+  });
+};
+
 const setTransactionAmountRange = (min: number, max: number): void => {
   cy.getBySel("transaction-list-filter-amount-range-button")
     .scrollIntoView()
@@ -185,7 +192,7 @@ describe("Transaction Feed", function () {
     });
 
     _.each(feedViews, (feed, feedName) => {
-      it(`paginates ${feedName} transaction feed`, function () {
+      it.only(`paginates ${feedName} transaction feed`, function () {
         cy.getBySelLike(feed.tab)
           .click()
           .should("have.class", "Mui-selected")
@@ -213,7 +220,7 @@ describe("Transaction Feed", function () {
             expect(results).have.length(Cypress.env("paginationPageSize"));
             expect(pageData.page).to.equal(2);
             cy.visualSnapshot(`Paginate ${feedName} Next Page`);
-            cy.nextTransactionFeedPage(feed.service, pageData.totalPages);
+            nextTransactionFeedPage(feed.service, pageData.totalPages);
           });
 
         cy.wait(`@${feed.routeAlias}`)
