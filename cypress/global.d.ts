@@ -71,20 +71,6 @@ declare namespace Cypress {
      */
     reactComponent(): Chainable<any>;
 
-    /**
-     * Select data range within date range picker component
-     */
-    pickDateRange(startDate: Date, endDate: Date): Chainable<void>;
-
-    /**
-     * Select transaction amount range
-     */
-    setTransactionAmountRange(min: number, max: number): Chainable<any>;
-
-    /**
-     * Paginate to the next page in transaction infinite-scroll pagination view
-     */
-    nextTransactionFeedPage(service: string, page: number): Chainable<any>;
 
     /**
      * Logs-in user by using UI
