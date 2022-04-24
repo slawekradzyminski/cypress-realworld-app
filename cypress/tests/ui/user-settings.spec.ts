@@ -1,8 +1,11 @@
 import { User } from "../../../src/models";
+import Sidebar, { Settings } from "../../components/Sidebar";
 import { isMobile } from "../../support/utils";
 
-describe("User Settings", function () {
-  beforeEach(function () {
+const sidebar = new Sidebar();
+
+describe("User Settings", () => {
+  beforeEach(() => {
     cy.task("db:seed");
 
     cy.intercept("PATCH", "/users/*").as("updateUser");
@@ -12,22 +15,20 @@ describe("User Settings", function () {
       cy.loginByXstate(user.username);
     });
 
-    if (isMobile()) {
-      cy.getBySel("sidenav-toggle").click();
-    }
-
-    cy.getBySel("sidenav-user-settings").click();
+    sidebar.click(Settings.myAccount);
   });
 
-  it("renders the user settings form", function () {
+  it.only("renders the user settings form", () => {
+    // when
     cy.wait("@getNotifications");
-    cy.getBySel("user-settings-form").should("be.visible");
-    cy.location("pathname").should("include", "/user/settings");
 
+    // then
+    cy.getBySel("user-settings-form").should("be.visible");
+    cy.url().should("contain", "/user/settings");
     cy.visualSnapshot("User Settings Form");
   });
 
-  it("should display user setting form errors", function () {
+  it("should display user setting form errors", () => {
     ["first", "last"].forEach((field) => {
       cy.getBySelLike(`${field}Name-input`).type("Abc").clear().blur();
       cy.get(`#user-settings-${field}Name-input-helper-text`)
@@ -59,7 +60,7 @@ describe("User Settings", function () {
     cy.visualSnapshot("User Settings Form Errors and Submit Disabled");
   });
 
-  it("updates first name, last name, email and phone number", function () {
+  it("updates first name, last name, email and phone number", () => {
     cy.getBySelLike("firstName").clear().type("New First Name");
     cy.getBySelLike("lastName").clear().type("New Last Name");
     cy.getBySelLike("email").clear().type("email@email.com");

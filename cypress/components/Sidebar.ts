@@ -9,7 +9,7 @@ export enum Settings {
 }
 
 export default class Sidebar {
-  open(_value: Settings) {
+  click(_value: Settings) {
     if (isMobile()) {
       cy.getBySel("sidenav-toggle").click();
     }
