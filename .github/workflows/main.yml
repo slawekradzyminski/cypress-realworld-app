@@ -169,7 +169,7 @@ jobs:
           name: build
           path: build
 
-      - name: "UI Tests - Firefox"
+      - name: "API Tests"
         uses: cypress-io/github-action@v2
         with:
           start: yarn start:ci
