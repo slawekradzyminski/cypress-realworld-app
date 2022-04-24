@@ -19,6 +19,17 @@ type TransactionFeedsCtx = {
   contactIds?: string[];
 };
 
+const setTransactionAmountRange = (min: number, max: number): void => {
+  cy.getBySel("transaction-list-filter-amount-range-button")
+    .scrollIntoView()
+    .click({ force: true });
+
+  cy.getBySelLike("filter-amount-range-slider")
+    .reactComponent()
+    .its("memoizedProps")
+    .invoke("onChange", null, [min / 10, max / 10]);
+};
+
 describe("Transaction Feed", function () {
   const ctx: TransactionFeedsCtx = {};
 
@@ -120,6 +131,7 @@ describe("Transaction Feed", function () {
               transaction.status
             );
 
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             expect(transaction.requestStatus).to.be.empty;
 
             cy.getBySelLike("like-count").should("have.text", `${transaction.likes.length}`);
@@ -188,6 +200,7 @@ describe("Transaction Feed", function () {
 
         // Temporary fix: https://github.com/cypress-io/cypress-realworld-app/issues/338
         if (isMobile()) {
+          // eslint-disable-next-line cypress/no-unnecessary-waiting
           cy.wait(10);
         }
 
@@ -309,7 +322,7 @@ describe("Transaction Feed", function () {
 
         cy.wait(`@${feed.routeAlias}`).its("response.body.results").as("unfilteredResults");
 
-        cy.setTransactionAmountRange(dollarAmountRange.min, dollarAmountRange.max);
+        setTransactionAmountRange(dollarAmountRange.min, dollarAmountRange.max);
 
         cy.getBySelLike("filter-amount-range-text").should(
           "contain",
@@ -357,7 +370,7 @@ describe("Transaction Feed", function () {
         cy.getBySelLike(feed.tab).click();
         cy.wait(`@${feed.routeAlias}`);
 
-        cy.setTransactionAmountRange(550, 1000);
+        setTransactionAmountRange(550, 1000);
         cy.getBySelLike("filter-amount-range-text").should("contain", "$550 - $1,000");
         cy.wait(`@${feed.routeAlias}`);
 
@@ -403,6 +416,7 @@ describe("Transaction Feed", function () {
 
           const contactsInTransaction = _.intersection(transactionParticipants, ctx.contactIds!);
           const message = `"${contactsInTransaction}" are contacts of ${ctx.user!.id}`;
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           expect(contactsInTransaction, message).to.not.be.empty;
         });
       cy.getBySel("list-skeleton").should("not.exist");
@@ -424,6 +438,7 @@ describe("Transaction Feed", function () {
           const contactsInTransaction = _.intersection(ctx.contactIds!, transactionParticipants);
 
           const message = `"${contactsInTransaction}" are contacts of ${ctx.user!.id}`;
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           expect(contactsInTransaction, message).to.not.be.empty;
         });
       cy.getBySel("list-skeleton").should("not.exist");
