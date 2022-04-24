@@ -1,5 +1,8 @@
 import { User } from "../../../src/models";
+import Sidebar, { Settings } from "../../components/Sidebar";
 import { isMobile } from "../../support/utils";
+
+const sidebar = new Sidebar();
 
 describe("User Settings", function () {
   beforeEach(function () {
@@ -12,11 +15,8 @@ describe("User Settings", function () {
       cy.loginByXstate(user.username);
     });
 
-    if (isMobile()) {
-      cy.getBySel("sidenav-toggle").click();
-    }
+    sidebar.click(Settings.myAccount);
 
-    cy.getBySel("sidenav-user-settings").click();
   });
 
   it("renders the user settings form", function () {
