@@ -19,6 +19,19 @@ type TransactionFeedsCtx = {
   contactIds?: string[];
 };
 
+const setTransactionAmountRange =  (min: number, max: number): void => {
+  cy.getBySel("transaction-list-filter-amount-range-button")
+    .scrollIntoView()
+    .click({ force: true });
+
+  cy
+    .getBySelLike("filter-amount-range-slider")
+    .reactComponent()
+    .its("memoizedProps")
+    .invoke("onChange", null, [min / 10, max / 10]);
+};
+
+
 describe("Transaction Feed", function () {
   const ctx: TransactionFeedsCtx = {};
 
@@ -309,7 +322,7 @@ describe("Transaction Feed", function () {
 
         cy.wait(`@${feed.routeAlias}`).its("response.body.results").as("unfilteredResults");
 
-        cy.setTransactionAmountRange(dollarAmountRange.min, dollarAmountRange.max);
+        setTransactionAmountRange(dollarAmountRange.min, dollarAmountRange.max);
 
         cy.getBySelLike("filter-amount-range-text").should(
           "contain",
@@ -357,7 +370,7 @@ describe("Transaction Feed", function () {
         cy.getBySelLike(feed.tab).click();
         cy.wait(`@${feed.routeAlias}`);
 
-        cy.setTransactionAmountRange(550, 1000);
+        setTransactionAmountRange(550, 1000);
         cy.getBySelLike("filter-amount-range-text").should("contain", "$550 - $1,000");
         cy.wait(`@${feed.routeAlias}`);
 

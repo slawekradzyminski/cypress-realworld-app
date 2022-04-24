@@ -77,11 +77,6 @@ declare namespace Cypress {
     pickDateRange(startDate: Date, endDate: Date): Chainable<void>;
 
     /**
-     * Select transaction amount range
-     */
-    setTransactionAmountRange(min: number, max: number): Chainable<any>;
-
-    /**
      * Paginate to the next page in transaction infinite-scroll pagination view
      */
     nextTransactionFeedPage(service: string, page: number): Chainable<any>;

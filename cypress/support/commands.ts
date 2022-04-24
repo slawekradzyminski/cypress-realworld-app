@@ -111,17 +111,7 @@ Cypress.Commands.add("reactComponent", { prevSubject: "element" }, ($el) => {
   return domFiber.return;
 });
 
-Cypress.Commands.add("setTransactionAmountRange", (min, max) => {
-  cy.getBySel("transaction-list-filter-amount-range-button")
-    .scrollIntoView()
-    .click({ force: true });
 
-  return cy
-    .getBySelLike("filter-amount-range-slider")
-    .reactComponent()
-    .its("memoizedProps")
-    .invoke("onChange", null, [min / 10, max / 10]);
-});
 
 Cypress.Commands.add("loginByXstate", (username, password = Cypress.env("defaultPassword")) => {
   const log = Cypress.log({
