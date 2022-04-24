@@ -221,34 +221,6 @@ Cypress.Commands.add("createTransaction", (payload) => {
     });
 });
 
-Cypress.Commands.add("nextTransactionFeedPage", (service, page) => {
-  const log = Cypress.log({
-    name: "nextTransactionFeedPage",
-    displayName: "NEXT TRANSACTION FEED PAGE",
-    message: [`📃 Fetching page ${page} with ${service}`],
-    // @ts-ignore
-    autoEnd: false,
-    consoleProps() {
-      return {
-        service,
-        page,
-      };
-    },
-  });
-
-  return cy
-    .window({ log: false })
-    .then((win) => {
-      log.snapshot("before");
-      // @ts-ignore
-      return win[service].send("FETCH", { page });
-    })
-    .then(() => {
-      log.snapshot("after");
-      log.end();
-    });
-});
-
 Cypress.Commands.add("pickDateRange", (startDate, endDate) => {
   const log = Cypress.log({
     name: "pickDateRange",
