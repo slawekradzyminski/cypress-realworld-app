@@ -9937,14 +9937,6 @@
       "transactionId": "SXHgQh46s7A",
       "createdAt": "2020-05-07T03:37:29.711Z",
       "modifiedAt": "2020-05-21T02:32:06.555Z"
-    },
-    {
-      "id": "O8l3w22MF",
-      "uuid": "631e77f2-0a2c-4ffe-9fa9-1467e850ac23",
-      "userId": "bDjUb4ir5O",
-      "transactionId": "7XaoAWOrn13",
-      "createdAt": "2022-04-23T13:52:09.607Z",
-      "modifiedAt": "2022-04-23T13:52:09.607Z"
     }
   ],
   "comments": [
@@ -10439,26 +10431,6 @@
       "isRead": false,
       "createdAt": "2019-10-19T20:50:49.292Z",
       "modifiedAt": "2020-05-21T21:00:50.192Z"
-    },
-    {
-      "id": "nBI2PnSShr",
-      "uuid": "a66e9e3b-6d2b-4bfd-b0e1-794318189236",
-      "userId": "qywYp6hS0U",
-      "transactionId": "7XaoAWOrn13",
-      "likeId": "O8l3w22MF",
-      "isRead": false,
-      "createdAt": "2022-04-23T13:52:09.647Z",
-      "modifiedAt": "2022-04-23T13:52:09.647Z"
-    },
-    {
-      "id": "qU9mfGB7Ev",
-      "uuid": "42c93e8e-2895-4433-9b4c-399d7389237b",
-      "userId": "t45AiwidW",
-      "transactionId": "7XaoAWOrn13",
-      "likeId": "O8l3w22MF",
-      "isRead": false,
-      "createdAt": "2022-04-23T13:52:09.666Z",
-      "modifiedAt": "2022-04-23T13:52:09.666Z"
     }
   ],
   "banktransfers": [
