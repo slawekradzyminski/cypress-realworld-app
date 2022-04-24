@@ -2,7 +2,7 @@
 ///<reference path="../global.d.ts" />
 
 import { pick } from "lodash/fp";
-import { format as formatDate } from "date-fns";
+
 import { isMobile } from "./utils";
 
 // Import Cypress Percy plugin command (https://docs.percy.io/docs/cypress)
@@ -221,43 +221,6 @@ Cypress.Commands.add("createTransaction", (payload) => {
     });
 });
 
-Cypress.Commands.add("pickDateRange", (startDate, endDate) => {
-  const log = Cypress.log({
-    name: "pickDateRange",
-    displayName: "PICK DATE RANGE",
-    message: [`🗓 ${startDate.toDateString()} to ${endDate.toDateString()}`],
-    // @ts-ignore
-    autoEnd: false,
-    consoleProps() {
-      return {
-        startDate,
-        endDate,
-      };
-    },
-  });
-
-  const selectDate = (date: Date) => {
-    return cy.get(`[data-date='${formatDate(date, "yyyy-MM-dd")}']`).click({ force: true });
-  };
-
-  log.snapshot("before");
-  // Focus initial viewable date picker range around target start date
-  // @ts-ignore
-  cy.clock(startDate.getTime(), ["Date"]);
-
-  // Open date range picker
-  cy.getBySelLike("filter-date-range-button").click({ force: true });
-  cy.get(".Cal__Header__root").should("be.visible");
-
-  // Select date range
-  selectDate(startDate);
-  selectDate(endDate).then(() => {
-    log.snapshot("after");
-    log.end();
-  });
-
-  cy.get(".Cal__Header__root").should("not.exist");
-});
 
 // @ts-ignore
 Cypress.Commands.add("database", (operation, entity, query, logTask = false) => {
