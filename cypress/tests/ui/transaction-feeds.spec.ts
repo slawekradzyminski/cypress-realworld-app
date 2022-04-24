@@ -10,6 +10,7 @@ import {
 import { addDays, isWithinInterval, startOfDay } from "date-fns";
 import { startOfDayUTC, endOfDayUTC } from "../../../src/utils/transactionUtils";
 import { isMobile } from "../../support/utils";
+import { format as formatDate } from "date-fns";
 
 const { _ } = Cypress;
 
@@ -17,6 +18,20 @@ type TransactionFeedsCtx = {
   allUsers?: User[];
   user?: User;
   contactIds?: string[];
+};
+
+const pickDateRange = (startDate: Date, endDate: Date): void => {
+  const selectDate = (date: Date) => {
+    return cy.get(`[data-date='${formatDate(date, "yyyy-MM-dd")}']`).click({ force: true });
+  };
+
+  // @ts-ignore
+  cy.clock(startDate.getTime(), ["Date"]);
+  cy.getBySelLike("filter-date-range-button").click({ force: true });
+  cy.get(".Cal__Header__root").should("be.visible");
+  selectDate(startDate);
+  selectDate(endDate);
+  cy.get(".Cal__Header__root").should("not.exist");
 };
 
 const nextTransactionFeedPage = (service: string, page: number): void => {
@@ -248,7 +263,7 @@ describe("Transaction Feed", function () {
     }
 
     _.each(feedViews, (feed, feedName) => {
-      it(`filters ${feedName} transaction feed by date range`, function () {
+      it.only(`filters ${feedName} transaction feed by date range`, function () {
         cy.database("find", "transactions").then((transaction: Transaction) => {
           const dateRangeStart = startOfDay(new Date(transaction.createdAt));
           const dateRangeEnd = endOfDayUTC(addDays(dateRangeStart, 1));
@@ -257,7 +272,7 @@ describe("Transaction Feed", function () {
 
           cy.wait(`@${feed.routeAlias}`).its("response.body.results").as("unfilteredResults");
 
-          cy.pickDateRange(dateRangeStart, dateRangeEnd);
+          pickDateRange(dateRangeStart, dateRangeEnd);
 
           cy.wait(`@${feed.routeAlias}`)
             .its("response.body.results")
@@ -303,7 +318,7 @@ describe("Transaction Feed", function () {
         cy.getBySelLike(feed.tab).click();
         cy.wait(`@${feed.routeAlias}`);
 
-        cy.pickDateRange(dateRangeStart, dateRangeEnd);
+        pickDateRange(dateRangeStart, dateRangeEnd);
         cy.wait(`@${feed.routeAlias}`);
 
         cy.getBySelLike("transaction-item").should("have.length", 0);
