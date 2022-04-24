@@ -207,7 +207,7 @@ describe("Transaction Feed", function () {
     });
 
     _.each(feedViews, (feed, feedName) => {
-      it.only(`paginates ${feedName} transaction feed`, function () {
+      it(`paginates ${feedName} transaction feed`, function () {
         cy.getBySelLike(feed.tab)
           .click()
           .should("have.class", "Mui-selected")
@@ -263,7 +263,7 @@ describe("Transaction Feed", function () {
     }
 
     _.each(feedViews, (feed, feedName) => {
-      it.only(`filters ${feedName} transaction feed by date range`, function () {
+      it(`filters ${feedName} transaction feed by date range`, function () {
         cy.database("find", "transactions").then((transaction: Transaction) => {
           const dateRangeStart = startOfDay(new Date(transaction.createdAt));
           const dateRangeEnd = endOfDayUTC(addDays(dateRangeStart, 1));
