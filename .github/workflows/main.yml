@@ -1,184 +1,184 @@
-name: Cypress Tests
+# name: Cypress Tests
 
-on:
-  push:
-    branches-ignore:
-      - "renovate/**"
+# on:
+#   push:
+#     branches-ignore:
+#       - "renovate/**"
 
-jobs:
-  install:
-    runs-on: ubuntu-latest
-    container: 
-      image: cypress/browsers:node16.13.2-chrome100-ff98
-      options: --user 1001
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+# jobs:
+#   install:
+#     runs-on: ubuntu-latest
+#     container: 
+#       image: cypress/browsers:node16.13.2-chrome100-ff98
+#       options: --user 1001
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v3
 
-      - name: Cypress install
-        uses: cypress-io/github-action@v2
-        with:
-          runTests: false
-      - run: yarn build:ci
+#       - name: Cypress install
+#         uses: cypress-io/github-action@v2
+#         with:
+#           runTests: false
+#       - run: yarn build:ci
 
-      - name: Save build folder
-        uses: actions/upload-artifact@v3
-        with:
-          name: build
-          if-no-files-found: error
-          path: build
+#       - name: Save build folder
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: build
+#           if-no-files-found: error
+#           path: build
 
-  ui-chrome-tests:
-    timeout-minutes: 15
-    runs-on: ubuntu-latest
-    container: 
-      image: cypress/browsers:node16.13.2-chrome100-ff98
-      options: --user 1001
-    needs: install
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+#   ui-chrome-tests:
+#     timeout-minutes: 15
+#     runs-on: ubuntu-latest
+#     container: 
+#       image: cypress/browsers:node16.13.2-chrome100-ff98
+#       options: --user 1001
+#     needs: install
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v3
 
-      - name: Download the build folders
-        uses: actions/download-artifact@v3
-        with:
-          name: build
-          path: build
+#       - name: Download the build folders
+#         uses: actions/download-artifact@v3
+#         with:
+#           name: build
+#           path: build
 
-      - name: "UI Tests - Chrome"
-        uses: cypress-io/github-action@v2
-        with:
-          # command-prefix: 'percy exec -- npx'
-          start: yarn start:ci
-          wait-on: "http://localhost:3000"
-          wait-on-timeout: 120
-          browser: chrome
-          spec: cypress/tests/ui/*
-        env:
-          # Recommended: pass the GitHub token lets this action correctly
-          # determine the unique run id necessary to re-run the checks
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+#       - name: "UI Tests - Chrome"
+#         uses: cypress-io/github-action@v2
+#         with:
+#           # command-prefix: 'percy exec -- npx'
+#           start: yarn start:ci
+#           wait-on: "http://localhost:3000"
+#           wait-on-timeout: 120
+#           browser: chrome
+#           spec: cypress/tests/ui/*
+#         env:
+#           # Recommended: pass the GitHub token lets this action correctly
+#           # determine the unique run id necessary to re-run the checks
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
 
-  ui-chrome-mobile-tests:
-    timeout-minutes: 15
-    runs-on: ubuntu-latest
-    container: 
-      image: cypress/browsers:node16.13.2-chrome100-ff98
-      options: --user 1001
-    needs: install
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+#   ui-chrome-mobile-tests:
+#     timeout-minutes: 15
+#     runs-on: ubuntu-latest
+#     container: 
+#       image: cypress/browsers:node16.13.2-chrome100-ff98
+#       options: --user 1001
+#     needs: install
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v3
 
-      - name: Download the build folders
-        uses: actions/download-artifact@v3
-        with:
-          name: build
-          path: build
+#       - name: Download the build folders
+#         uses: actions/download-artifact@v3
+#         with:
+#           name: build
+#           path: build
 
-      - name: "UI Tests - Chrome - Mobile"
-        uses: cypress-io/github-action@v2
-        with:
-          config: "viewportWidth=375,viewportHeight=667"
-          start: yarn start:ci
-          wait-on: "http://localhost:3000"
-          wait-on-timeout: 120
-          browser: chrome
-          spec: cypress/tests/ui/*
-        env:
-          # Recommended: pass the GitHub token lets this action correctly
-          # determine the unique run id necessary to re-run the checks
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#       - name: "UI Tests - Chrome - Mobile"
+#         uses: cypress-io/github-action@v2
+#         with:
+#           config: "viewportWidth=375,viewportHeight=667"
+#           start: yarn start:ci
+#           wait-on: "http://localhost:3000"
+#           wait-on-timeout: 120
+#           browser: chrome
+#           spec: cypress/tests/ui/*
+#         env:
+#           # Recommended: pass the GitHub token lets this action correctly
+#           # determine the unique run id necessary to re-run the checks
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  ui-firefox-tests:
-    timeout-minutes: 15
-    runs-on: ubuntu-latest
-    container:
-      image: cypress/browsers:node16.13.2-chrome100-ff98
-      options: --user 1001
-    needs: install
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+#   ui-firefox-tests:
+#     timeout-minutes: 15
+#     runs-on: ubuntu-latest
+#     container:
+#       image: cypress/browsers:node16.13.2-chrome100-ff98
+#       options: --user 1001
+#     needs: install
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v3
 
-      - name: Download the build folders
-        uses: actions/download-artifact@v3
-        with:
-          name: build
-          path: build
+#       - name: Download the build folders
+#         uses: actions/download-artifact@v3
+#         with:
+#           name: build
+#           path: build
 
-      - name: "UI Tests - Firefox"
-        uses: cypress-io/github-action@v2
-        with:
-          start: yarn start:ci
-          wait-on: "http://localhost:3000"
-          wait-on-timeout: 120
-          browser: firefox
-          spec: cypress/tests/ui/*
-        env:
-          # Recommended: pass the GitHub token lets this action correctly
-          # determine the unique run id necessary to re-run the checks
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#       - name: "UI Tests - Firefox"
+#         uses: cypress-io/github-action@v2
+#         with:
+#           start: yarn start:ci
+#           wait-on: "http://localhost:3000"
+#           wait-on-timeout: 120
+#           browser: firefox
+#           spec: cypress/tests/ui/*
+#         env:
+#           # Recommended: pass the GitHub token lets this action correctly
+#           # determine the unique run id necessary to re-run the checks
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  ui-firefox-mobile-tests:
-    timeout-minutes: 15
-    runs-on: ubuntu-latest
-    container:
-      image: cypress/browsers:node16.13.2-chrome100-ff98
-      options: --user 1001
-    needs: install
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+#   ui-firefox-mobile-tests:
+#     timeout-minutes: 15
+#     runs-on: ubuntu-latest
+#     container:
+#       image: cypress/browsers:node16.13.2-chrome100-ff98
+#       options: --user 1001
+#     needs: install
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v3
 
-      - name: Download the build folders
-        uses: actions/download-artifact@v3
-        with:
-          name: build
-          path: build
+#       - name: Download the build folders
+#         uses: actions/download-artifact@v3
+#         with:
+#           name: build
+#           path: build
 
-      - name: "UI Tests - Firefox - Mobile"
-        uses: cypress-io/github-action@v2
-        with:
-          config: "viewportWidth=375,viewportHeight=667"
-          start: yarn start:ci
-          wait-on: "http://localhost:3000"
-          wait-on-timeout: 120
-          browser: firefox
-          spec: cypress/tests/ui/*
-        env:
-          # Recommended: pass the GitHub token lets this action correctly
-          # determine the unique run id necessary to re-run the checks
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#       - name: "UI Tests - Firefox - Mobile"
+#         uses: cypress-io/github-action@v2
+#         with:
+#           config: "viewportWidth=375,viewportHeight=667"
+#           start: yarn start:ci
+#           wait-on: "http://localhost:3000"
+#           wait-on-timeout: 120
+#           browser: firefox
+#           spec: cypress/tests/ui/*
+#         env:
+#           # Recommended: pass the GitHub token lets this action correctly
+#           # determine the unique run id necessary to re-run the checks
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  api-tests:
-    timeout-minutes: 15
-    runs-on: ubuntu-latest
-    container:
-      image: cypress/browsers:node16.13.2-chrome100-ff98
-      options: --user 1001
-    needs: install
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+#   api-tests:
+#     timeout-minutes: 15
+#     runs-on: ubuntu-latest
+#     container:
+#       image: cypress/browsers:node16.13.2-chrome100-ff98
+#       options: --user 1001
+#     needs: install
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v3
 
-      - name: Download the build folders
-        uses: actions/download-artifact@v3
-        with:
-          name: build
-          path: build
+#       - name: Download the build folders
+#         uses: actions/download-artifact@v3
+#         with:
+#           name: build
+#           path: build
 
-      - name: "API Tests"
-        uses: cypress-io/github-action@v2
-        with:
-          start: yarn start:ci
-          wait-on: "http://localhost:3000"
-          wait-on-timeout: 120
-          browser: firefox
-          spec: cypress/tests/api/*
-        env:
-          # Recommended: pass the GitHub token lets this action correctly
-          # determine the unique run id necessary to re-run the checks
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#       - name: "API Tests"
+#         uses: cypress-io/github-action@v2
+#         with:
+#           start: yarn start:ci
+#           wait-on: "http://localhost:3000"
+#           wait-on-timeout: 120
+#           browser: firefox
+#           spec: cypress/tests/api/*
+#         env:
+#           # Recommended: pass the GitHub token lets this action correctly
+#           # determine the unique run id necessary to re-run the checks
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
