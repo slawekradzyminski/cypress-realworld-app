@@ -81,6 +81,7 @@ declare namespace Cypress {
      */
     setTransactionAmountRange(min: number, max: number): Chainable<any>;
 
+    // auth-commands.ts
     /**
      * Paginate to the next page in transaction infinite-scroll pagination view
      */

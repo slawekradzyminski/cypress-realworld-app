@@ -5,13 +5,6 @@ import { isMobile } from "./utils";
 
 Cypress.Commands.add("login", (username, password, { rememberUser = false } = {}) => {
   const signinPath = "/signin";
-  const log = Cypress.log({
-    name: "login",
-    displayName: "LOGIN",
-    message: [`🔐 Authenticating | ${username}`],
-    // @ts-ignore
-    autoEnd: false,
-  });
 
   cy.intercept("POST", "/login").as("loginUser");
   cy.intercept("GET", "checkAuth").as("getUserProfile");
@@ -22,8 +15,6 @@ Cypress.Commands.add("login", (username, password, { rememberUser = false } = {}
     }
   });
 
-  log.snapshot("before");
-
   cy.getBySel("signin-username").type(username);
   cy.getBySel("signin-password").type(password);
 
@@ -32,21 +23,7 @@ Cypress.Commands.add("login", (username, password, { rememberUser = false } = {}
   }
 
   cy.getBySel("signin-submit").click();
-  cy.wait("@loginUser").then((loginUser: any) => {
-    log.set({
-      consoleProps() {
-        return {
-          username,
-          password,
-          rememberUser,
-          userId: loginUser.response.statusCode !== 401 && loginUser.response.body.user.id,
-        };
-      },
-    });
-
-    log.snapshot("after");
-    log.end();
-  });
+  cy.wait("@loginUser");
 });
 
 Cypress.Commands.add("loginByApi", (username, password = Cypress.env("defaultPassword")) => {
