@@ -42,9 +42,9 @@ describe("User Sign-up and Login", function () {
     if (isMobile()) {
       cy.getBySel("sidenav-toggle").click();
     }
+    cy.visualSnapshot("Redirect to SignIn");
     cy.getBySel("sidenav-signout").click();
     cy.location("pathname").should("eq", "/signin");
-    cy.visualSnapshot("Redirect to SignIn");
   });
 
   it("should allow a visitor to sign-up, login, and logout", function () {
