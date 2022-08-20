@@ -116,7 +116,6 @@ yarn cypress:open
 >       "url": "http://localhost:13001/__coverage__"
 >     }
 >   },
->   "experimentalStudio": true
 > }
 > ```
 >
