@@ -16,7 +16,6 @@ export default defineConfig({
       url: 'http://localhost:3001/__coverage__',
     },
   },
-  experimentalStudio: true,
   e2e: {
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.
