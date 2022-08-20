@@ -4,12 +4,13 @@ on:
   push:
     branches-ignore:
       - "renovate/**"
+      - "!develop"
 
 jobs:
   install:
     runs-on: ubuntu-latest
     container: 
-      image: cypress/browsers:node16.13.2-chrome100-ff98
+      image: cypress/browsers:node16.14.2-slim-chrome103-ff102
       options: --user 1001
     steps:
       - name: Checkout
@@ -32,7 +33,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container: 
-      image: cypress/browsers:node16.13.2-chrome100-ff98
+      image: cypress/browsers:node16.14.2-slim-chrome103-ff102
       options: --user 1001
     needs: install
     steps:
@@ -64,7 +65,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container: 
-      image: cypress/browsers:node16.13.2-chrome100-ff98
+      image: cypress/browsers:node16.14.2-slim-chrome103-ff102
       options: --user 1001
     needs: install
     steps:
@@ -95,7 +96,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.13.2-chrome100-ff98
+      image: cypress/browsers:node16.14.2-slim-chrome103-ff102
       options: --user 1001
     needs: install
     steps:
@@ -125,7 +126,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.13.2-chrome100-ff98
+      image: cypress/browsers:node16.14.2-slim-chrome103-ff102
       options: --user 1001
     needs: install
     steps:
@@ -156,7 +157,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.13.2-chrome100-ff98
+      image: cypress/browsers:node16.14.2-slim-chrome103-ff102
       options: --user 1001
     needs: install
     steps:
