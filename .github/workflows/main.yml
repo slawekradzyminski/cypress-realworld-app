@@ -67,6 +67,11 @@ jobs:
     container: 
       image: cypress/browsers:node16.14.2-slim-chrome103-ff102
       options: --user 1001
+    strategy:
+      fail-fast: false
+      matrix:
+        # run copies of the current job in parallel
+        containers: [1, 2, 3, 4, 5]
     needs: install
     steps:
       - name: Checkout
@@ -81,6 +86,9 @@ jobs:
       - name: "UI Tests - Chrome - Mobile"
         uses: cypress-io/github-action@v4
         with:
+          record: true
+          parallel: true
+          group: 'UI - Chrome - Mobile'
           config: "viewportWidth=375,viewportHeight=667"
           start: yarn start:ci
           wait-on: "http://localhost:3000"
@@ -91,6 +99,7 @@ jobs:
           # Recommended: pass the GitHub token lets this action correctly
           # determine the unique run id necessary to re-run the checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
   ui-firefox-tests:
     timeout-minutes: 15
