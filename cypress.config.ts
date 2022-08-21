@@ -6,7 +6,7 @@ export default defineConfig({
   viewportWidth: 1280,
   retries: {
     runMode: 2,
-    openMode: 1,
+    openMode: 0,
   },
   env: {
     apiUrl: "http://localhost:3001",
