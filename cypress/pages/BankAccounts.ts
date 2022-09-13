@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 export default class BankAccountsPage {
   verifyTooLongAccountNumberAlert() {
     cy.getBySelLike("accountNumber-input").type("123456789111").find("input").blur();
@@ -62,7 +61,7 @@ export default class BankAccountsPage {
   clickCreate() {
     cy.getBySel("bankaccount-new").click();
   }
-  
+
   verifyEmptyBankNameAlert() {
     cy.getBySelLike("bankName-input").type("The").find("input").clear().blur();
     cy.get("#bankaccount-bankName-input-helper-text")
@@ -80,5 +79,4 @@ export default class BankAccountsPage {
   verifySumbitButtonDisabled() {
     cy.getBySel("bankaccount-submit").should("be.disabled");
   }
-
 }
