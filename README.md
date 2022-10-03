@@ -115,7 +115,7 @@ yarn cypress:open
 >     "codeCoverage": {
 >       "url": "http://localhost:13001/__coverage__"
 >     }
->   },
+>   }
 > }
 > ```
 >
@@ -231,7 +231,6 @@ This project is licensed under the terms of the [MIT license](/LICENSE).
 [cognito]: https://aws.amazon.com/cognito
 [awsamplify]: https://amplify.aws
 [google]: https://google.com
-
 
 ## Contributors ✨
 
