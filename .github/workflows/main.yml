@@ -10,7 +10,7 @@ jobs:
   install:
     runs-on: ubuntu-latest
     container: 
-      image: cypress/browsers:node16.14.2-slim-chrome103-ff102
+      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
       options: --user 1001
     steps:
       - name: Checkout
@@ -33,7 +33,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container: 
-      image: cypress/browsers:node16.14.2-slim-chrome103-ff102
+      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
       options: --user 1001
     needs: install
     steps:
@@ -65,7 +65,7 @@ jobs:
   #   timeout-minutes: 15
   #   runs-on: ubuntu-latest
   #   container: 
-  #     image: cypress/browsers:node16.14.2-slim-chrome103-ff102
+  #     image: cypress/browsers:node16.16.0-chrome105-ff104-edge
   #     options: --user 1001
   #   strategy:
   #     fail-fast: false
@@ -104,7 +104,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.14.2-slim-chrome103-ff102
+      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
       options: --user 1001
     needs: install
     steps:
@@ -134,7 +134,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.14.2-slim-chrome103-ff102
+      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
       options: --user 1001
     needs: install
     steps:
@@ -165,7 +165,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.14.2-slim-chrome103-ff102
+      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
       options: --user 1001
     needs: install
     steps:
@@ -195,7 +195,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.14.2-slim-chrome100-ff99-edge
+      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
       options: --user 1001
     needs: install
     steps:
@@ -211,6 +211,37 @@ jobs:
       - name: "UI Tests - Edge"
         uses: cypress-io/github-action@v4
         with:
+          start: yarn start:ci
+          wait-on: "http://localhost:3000"
+          wait-on-timeout: 120
+          browser: edge
+          spec: cypress/tests/ui/*
+        env:
+          # Recommended: pass the GitHub token lets this action correctly
+          # determine the unique run id necessary to re-run the checks
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  ui-edge-mobile-tests:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
+      options: --user 1001
+    needs: install
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download the build folders
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: build
+
+      - name: "UI Tests - Edge"
+        uses: cypress-io/github-action@v4
+        with:
+          config: "viewportWidth=375,viewportHeight=667"
           start: yarn start:ci
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
