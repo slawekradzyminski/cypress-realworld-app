@@ -1,29 +1,29 @@
-name: Cypress Tests
+name: Cypress Tests # Nazwa z github actions
 
 on:
   push:
-    branches-ignore:
+    branches-ignore: # Z wyjątkiem branchy, które zaczynają się od:
       - "renovate/**"
       # - "!develop"
 
 jobs:
   install:
     runs-on: ubuntu-latest
-    container: 
+    container:
       image: cypress/browsers:node16.14.2-slim-chrome103-ff102
       options: --user 1001
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3 # Tu ta akcja oznacza git clone
 
       - name: Cypress install
-        uses: cypress-io/github-action@v4
+        uses: cypress-io/github-action@v4 # Tu ta akcja oznacza npx cypress run
         with:
           runTests: false
-      - run: yarn build:ci
+      - run: yarn build:ci # Instalacja projektu
 
       - name: Save build folder
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3 # Zapisanie pojektu (po to żeby mógł być używany później do innych jobów)
         with:
           name: build
           if-no-files-found: error
@@ -32,16 +32,16 @@ jobs:
   ui-chrome-tests:
     timeout-minutes: 15
     runs-on: ubuntu-latest
-    container: 
+    container:
       image: cypress/browsers:node16.14.2-slim-chrome103-ff102
       options: --user 1001
-    needs: install
+    needs: install # Powoduje, że potrzebuje instalacji czegoś wcześniejszego, w tym przypadku joba install
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Download the build folders
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v3 # Ściąga zapisany projekt
         with:
           name: build
           path: build
@@ -49,10 +49,10 @@ jobs:
       - name: "UI Tests - Chrome"
         uses: cypress-io/github-action@v4
         with:
-          command-prefix: 'percy exec -- npx'
-          start: yarn start:ci
-          wait-on: "http://localhost:3000"
-          wait-on-timeout: 120
+          command-prefix: "percy exec -- npx"
+          start: yarn start:ci # Start aplikacji
+          wait-on: "http://localhost:3000" # Czekanie aż aplikacja będzie responsywna...
+          wait-on-timeout: 120 # ...przez max 2 minuty
           browser: chrome
           spec: cypress/tests/ui/*
         env:
@@ -64,7 +64,7 @@ jobs:
   # ui-chrome-mobile-tests:
   #   timeout-minutes: 15
   #   runs-on: ubuntu-latest
-  #   container: 
+  #   container:
   #     image: cypress/browsers:node16.14.2-slim-chrome103-ff102
   #     options: --user 1001
   #   strategy:
@@ -150,7 +150,7 @@ jobs:
       - name: "UI Tests - Firefox - Mobile"
         uses: cypress-io/github-action@v4
         with:
-          config: "viewportWidth=375,viewportHeight=667"
+          config: "viewportWidth=375,viewportHeight=667" # Pozwala na określenie niestandardowej rozdzielczości
           start: yarn start:ci
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
@@ -195,7 +195,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.14.2-slim-chrome100-ff99-edge
+      image: cypress/browsers:node16.16.0-chrome106-ff99-edge
       options: --user 1001
     needs: install
     steps:
@@ -221,3 +221,33 @@ jobs:
           # determine the unique run id necessary to re-run the checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  ui-edge-mobile-tests:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:node16.16.0-chrome106-ff99-edge
+      options: --user 1001
+    needs: install
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download the build folders
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: build
+
+      - name: "UI Tests - Edge"
+        uses: cypress-io/github-action@v4
+        with:
+          config: "viewportWidth=375,viewportHeight=667"
+          start: yarn start:ci
+          wait-on: "http://localhost:3000"
+          wait-on-timeout: 120
+          browser: edge
+          spec: cypress/tests/ui/*
+        env:
+          # Recommended: pass the GitHub token lets this action correctly
+          # determine the unique run id necessary to re-run the checks
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
