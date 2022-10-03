@@ -99,7 +99,6 @@ describe("Notifications", function () {
 
       cy.switchUserByXstate(ctx.userA.username);
       cy.visualSnapshot(`Switch to User ${ctx.userA.username}`);
-
       cy.getBySelLike("notifications-link").click();
 
       cy.wait("@getNotifications");
