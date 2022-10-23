@@ -10,7 +10,7 @@ jobs:
   install:
     runs-on: ubuntu-latest
     container: 
-      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
+      image: cypress/browsers:node16.16.0-chrome106-ff99-edge
       options: --user 1001
     steps:
       - name: Checkout
@@ -33,7 +33,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container: 
-      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
+      image: cypress/browsers:node16.16.0-chrome106-ff99-edge
       options: --user 1001
     needs: install
     steps:
@@ -65,7 +65,7 @@ jobs:
   #   timeout-minutes: 15
   #   runs-on: ubuntu-latest
   #   container: 
-  #     image: cypress/browsers:node16.16.0-chrome105-ff104-edge
+  #     image: cypress/browsers:node16.16.0-chrome106-ff99-edge
   #     options: --user 1001
   #   strategy:
   #     fail-fast: false
@@ -104,7 +104,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
+      image: cypress/browsers:node16.16.0-chrome106-ff99-edge
       options: --user 1001
     needs: install
     steps:
@@ -134,7 +134,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
+      image: cypress/browsers:node16.16.0-chrome106-ff99-edge
       options: --user 1001
     needs: install
     steps:
@@ -165,7 +165,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
+      image: cypress/browsers:node16.16.0-chrome106-ff99-edge
       options: --user 1001
     needs: install
     steps:
@@ -195,7 +195,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
+      image: cypress/browsers:node16.16.0-chrome106-ff99-edge
       options: --user 1001
     needs: install
     steps:
