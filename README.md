@@ -13,6 +13,7 @@
     <img src="https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/detailed/7s5okt/develop&style=flat&logo=cypress" />
   </a>
 
+
   <a href="https://codecov.io/gh/cypress-io/cypress-realworld-app">
     <img src="https://codecov.io/gh/cypress-io/cypress-realworld-app/branch/develop/graph/badge.svg" />
   </a>
