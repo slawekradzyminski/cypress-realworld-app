@@ -5,6 +5,11 @@ pipeline {
         }
     }
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
         stage('installation') {
             steps {
                 sh 'yarn build:ci'
