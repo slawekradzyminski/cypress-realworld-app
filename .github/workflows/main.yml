@@ -221,8 +221,8 @@ jobs:
           # determine the unique run id necessary to re-run the checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  name: "UI Tests - Mobile"
-       uses: cypress-io/github-action@v4
+      - name: "UI Tests - Mobile"
+        uses: cypress-io/github-action@v4
         with:
            config: "viewportWidth=375,viewportHeight=667"
            start: yarn start:ci
@@ -231,7 +231,7 @@ jobs:
            browser: chrome
            group: 'UI- Mobile'
            spec: cypress/tests/ui/*
-       env:
+        env:
            # Recommended: pass the GitHub token lets this action correctly
            # determine the unique run id necessary to re-run the checks
            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
