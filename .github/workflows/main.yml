@@ -10,7 +10,7 @@ jobs:
   install:
     runs-on: ubuntu-latest
     container: 
-      image: cypress-13.0.0-node-18.15.0-chrome-106.0.5249.61-1-ff-99.0.1-edge-114.0.1823.51-1
+      image: cypress/cypress-12.17.3-node-18.16.1-chrome-114.0.5735.133-1-ff-114.0.2-edge-114.0.1823.51-1
       options: --user 1001
     steps:
       - name: Checkout
@@ -33,7 +33,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container: 
-      image: cypress/browsers:node16.18.0-chrome107-ff106-edge
+      image: cypress/cypress-12.17.3-node-18.16.1-chrome-114.0.5735.133-1-ff-114.0.2-edge-114.0.1823.51-1
       options: --user 1001
     needs: install
     steps:
@@ -61,44 +61,44 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
 
-  # ui-chrome-mobile-tests:
-  #   timeout-minutes: 15
-  #   runs-on: ubuntu-latest
-  #   container: 
-  #     image: cypress/browsers:node16.18.0-chrome107-ff106-edge
-  #     options: --user 1001
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       containers: [1, 2, 3, 4, 5]
-  #   needs: install
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v3
+  ui-chrome-mobile-tests:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    container: 
+      image: cypress/browsers:node16.18.0-chrome107-ff106-edge
+      options: --user 1001
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2, 3, 4, 5]
+    needs: install
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-  #     - name: Download the build folders
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: build
-  #         path: build
+      - name: Download the build folders
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: build
 
-  #     - name: "UI Tests - Chrome - Mobile"
-  #       uses: cypress-io/github-action@v4
-  #       with:
-  #         config: "viewportWidth=375,viewportHeight=667"
-  #         start: yarn start:ci
-  #         wait-on: "http://localhost:3000"
-  #         wait-on-timeout: 120
-  #         browser: chrome
-  #         record: true
-  #         parallel: true
-  #         group: 'UI - Chrome - Mobile'
-  #         spec: cypress/tests/ui/*
-  #       env:
-  #         # Recommended: pass the GitHub token lets this action correctly
-  #         # determine the unique run id necessary to re-run the checks
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #         CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+      - name: "UI Tests - Chrome - Mobile"
+        uses: cypress-io/github-action@v4
+        with:
+          config: "viewportWidth=375,viewportHeight=667"
+          start: yarn start:ci
+          wait-on: "http://localhost:3000"
+          wait-on-timeout: 120
+          browser: chrome
+          record: true
+          parallel: true
+          group: 'UI - Chrome - Mobile'
+          spec: cypress/tests/ui/*
+        env:
+          # Recommended: pass the GitHub token lets this action correctly
+          # determine the unique run id necessary to re-run the checks
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
   ui-firefox-tests:
     timeout-minutes: 15
