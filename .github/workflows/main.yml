@@ -10,11 +10,11 @@ jobs:
   install:
     runs-on: ubuntu-latest
     container: 
-      image: cypress/browsers:node16.18.0-chrome107-ff106-edge
+      image: cypress-13.0.0-node-18.15.0-chrome-106.0.5249.61-1-ff-99.0.1-edge-114.0.1823.51-1
       options: --user 1001
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Cypress install
         uses: cypress-io/github-action@v4
