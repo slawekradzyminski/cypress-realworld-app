@@ -207,7 +207,7 @@ The **only passing spec on this branch** will be the [cognito spec](./cypress/te
 A [guide has been written with detail around adapting the RWA](https://docs.cypress.io/guides/testing-strategies/google-authentication.html) to use [Google][google] as the authentication solution and to explain the programmatic command used for Cypress tests.
 
 Prerequisites include an [Google][google] account. Environment variables from [Google][google] are to be placed in the [.env](./.env).
-
+asd
 Start the application with `yarn dev:google` and run Cypress with `yarn cypress:open`.
 
 The **only passing spec** when run with `yarn dev:google` will be the [google spec](./cypress/tests/ui-auth-providers/google.spec.ts); all others will fail.
