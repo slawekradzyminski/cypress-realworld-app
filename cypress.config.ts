@@ -25,4 +25,5 @@ export default defineConfig({
     baseUrl: "http://localhost:3000",
     specPattern: "cypress/tests/**/*.{js,jsx,ts,tsx}",
   },
+
 });
