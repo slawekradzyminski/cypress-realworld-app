@@ -128,14 +128,13 @@ describe("New Transaction", function () {
       .should("be.visible")
       .and("contain", "Please enter a valid amount");
 
+    cy.visualSnapshot("New Transaction Errors with Submit Payment/Request Buttons Disabled");
     cy.getBySelLike("description-input").type("Fun").find("input").clear().blur();
     cy.get("#transaction-create-description-input-helper-text")
       .should("be.visible")
       .and("contain", "Please enter a note");
-
     cy.getBySelLike("submit-request").should("be.disabled");
     cy.getBySelLike("submit-payment").should("be.disabled");
-    cy.visualSnapshot("New Transaction Errors with Submit Payment/Request Buttons Disabled");
   });
 
   it("submits a transaction payment and verifies the deposit for the receiver", function () {
