@@ -10,7 +10,7 @@ jobs:
   install:
     runs-on: ubuntu-latest
     container:
-      image: cypress/included:cypress-13.6.1-node-20.9.0-chrome-118.0.5993.88-1-ff-118.0.2-edge-118.0.2088.46-1
+      image: cypress/included:cypress-12.17.2-node-18.16.0-chrome-114.0.5735.133-1-ff-114.0.2-edge-114.0.1823.51-1
       options: --user 1001
     steps:
       - name: Checkout
@@ -33,7 +33,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/included:cypress-13.6.1-node-20.9.0-chrome-118.0.5993.88-1-ff-118.0.2-edge-118.0.2088.46-1
+      image: cypress/included:cypress-12.17.2-node-18.16.0-chrome-114.0.5735.133-1-ff-114.0.2-edge-114.0.1823.51-1
       options: --user 1001
     needs: install
     steps:
@@ -65,7 +65,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/included:cypress-13.6.1-node-20.9.0-chrome-118.0.5993.88-1-ff-118.0.2-edge-118.0.2088.46-1
+      image: cypress/included:cypress-12.17.2-node-18.16.0-chrome-114.0.5735.133-1-ff-114.0.2-edge-114.0.1823.51-1
       options: --user 1001
     # strategy:
     #   fail-fast: false
@@ -104,7 +104,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/included:cypress-13.6.1-node-20.9.0-chrome-118.0.5993.88-1-ff-118.0.2-edge-118.0.2088.46-1
+      image: cypress/included:cypress-12.17.2-node-18.16.0-chrome-114.0.5735.133-1-ff-114.0.2-edge-114.0.1823.51-1
       options: --user 1001
     needs: install
     steps:
@@ -134,7 +134,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/included:cypress-13.6.1-node-20.9.0-chrome-118.0.5993.88-1-ff-118.0.2-edge-118.0.2088.46-1
+      image: cypress/included:cypress-12.17.2-node-18.16.0-chrome-114.0.5735.133-1-ff-114.0.2-edge-114.0.1823.51-1
       options: --user 1001
     needs: install
     steps:
@@ -165,7 +165,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/included:cypress-13.6.1-node-20.9.0-chrome-118.0.5993.88-1-ff-118.0.2-edge-118.0.2088.46-1
+      image: cypress/included:cypress-12.17.2-node-18.16.0-chrome-114.0.5735.133-1-ff-114.0.2-edge-114.0.1823.51-1
       options: --user 1001
     needs: install
     steps:
@@ -195,7 +195,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/included:cypress-13.6.1-node-20.9.0-chrome-118.0.5993.88-1-ff-118.0.2-edge-118.0.2088.46-1
+      image: cypress/included:cypress-12.17.2-node-18.16.0-chrome-114.0.5735.133-1-ff-114.0.2-edge-114.0.1823.51-1
       options: --user 1001
     needs: install
     steps:
