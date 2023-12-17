@@ -100,7 +100,7 @@ yarn cypress:open
 
 > 🚩 **Note**
 >
-> If you have changed the default ports, then you need to update Cypress configuration file (`cypress.json`) locally.
+> If you have changed the default ports, then you need to update Cypress configuration file (`cypress.json`) locally. WOW
 > There are three properties that you need to update in `cypress.json`: `baseUrl`, `apiUrl`, and `url`.
 > The port number in `baseUrl` corresponds to `PORT` variable in `.env` file. Similarly, the port number in `apiUrl` and `url` correspond to `REACT_APP_BACKEND_PORT`.
 > For example, if you have changed `PORT` to `13000` and `REACT_APP_BACKEND_PORT` to `13001` in `.env` file, then your `cypress.json` should look similar to the following snippet:
@@ -115,7 +115,7 @@ yarn cypress:open
 >     "codeCoverage": {
 >       "url": "http://localhost:13001/__coverage__"
 >     }
->   },
+>   }
 > }
 > ```
 >
@@ -232,7 +232,6 @@ This project is licensed under the terms of the [MIT license](/LICENSE).
 [awsamplify]: https://amplify.aws
 [google]: https://google.com
 
-
 ## Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
@@ -264,12 +263,6 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- markdownlint-enable -->
 <!-- prettier-ignore-end -->
 
-
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
-
-
-
-
-
