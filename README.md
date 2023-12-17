@@ -100,7 +100,7 @@ yarn cypress:open
 
 > 🚩 **Note**
 >
-> If you have changed the default ports, then you need to update Cypress configuration file (`cypress.json`) locally.
+> If you have changed the default ports, then you need to update Cypress configuration file (`cypress.json`) locally. WOW
 > There are three properties that you need to update in `cypress.json`: `baseUrl`, `apiUrl`, and `url`.
 > The port number in `baseUrl` corresponds to `PORT` variable in `.env` file. Similarly, the port number in `apiUrl` and `url` correspond to `REACT_APP_BACKEND_PORT`.
 > For example, if you have changed `PORT` to `13000` and `REACT_APP_BACKEND_PORT` to `13001` in `.env` file, then your `cypress.json` should look similar to the following snippet:
@@ -230,8 +230,7 @@ This project is licensed under the terms of the [MIT license](/LICENSE).
 [oktacreateapp]: https://developer.okta.com/docs/guides/sign-into-spa/react/create-okta-application/
 [cognito]: https://aws.amazon.com/cognito
 [awsamplify]: https://amplify.aws
-
-[google]: https://google.com // asd
+[google]: https://google.com
 
 ## Contributors ✨
 
