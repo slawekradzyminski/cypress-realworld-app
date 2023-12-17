@@ -67,10 +67,10 @@ jobs:
     container: 
       image: cypress/browsers:node-16.18.1-chrome-110.0.5481.96-1-ff-109.0-edge-110.0.1587.41-1
       options: --user 1001
-    # strategy:
-    #   fail-fast: false
-    #   matrix:
-    #     containers: [1, 2, 3, 4, 5]
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2, 3, 4, 5]
     needs: install
     steps:
       - name: Checkout
