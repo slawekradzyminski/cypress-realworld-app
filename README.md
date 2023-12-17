@@ -115,7 +115,7 @@ yarn cypress:open
 >     "codeCoverage": {
 >       "url": "http://localhost:13001/__coverage__"
 >     }
->   },
+>   }
 > }
 > ```
 >
@@ -230,8 +230,8 @@ This project is licensed under the terms of the [MIT license](/LICENSE).
 [oktacreateapp]: https://developer.okta.com/docs/guides/sign-into-spa/react/create-okta-application/
 [cognito]: https://aws.amazon.com/cognito
 [awsamplify]: https://amplify.aws
-[google]: https://google.com
 
+[google]: https://google.com // asd
 
 ## Contributors ✨
 
@@ -262,12 +262,6 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- markdownlint-enable -->
 <!-- prettier-ignore-end -->
 
-
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
-
-
-
-
-
